@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <title>Sci-Fi City Dashboard</title>
   <script src="https://static.sketchfab.com/api/sketchfab-viewer-1.12.0.js"></script>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
   <style>
     :root {
       --panel: rgba(10, 10, 25, 0.5);
@@ -67,7 +69,7 @@
 
     .top-right {
       position: absolute;
-      right: 70px;
+      right: 20px;
       top: 50%;
       transform: translateY(-50%);
     }
@@ -148,7 +150,7 @@
 
     .left, .right {
       position: absolute;
-      top: 64px;
+      top: 35px;
       width: 320px;
       height: calc(100vh - 64px);
       /* ทำให้โปร่งใส/ไม่มีพื้นและเงาขอบ */
@@ -159,12 +161,12 @@
 
       padding: 20px;
       z-index: 2;
-      overflow-y: auto;
+      overflow-y: hidden;
     }
 
     /* ตำแหน่งซ้าย/ขวา */
     .left { left: 0; }
-    .right { right: 60px; }
+    .right { right: -20px; }
 
 
     .card {
@@ -402,6 +404,23 @@
       width: 100%;
       animation: scroll-up-down 120s ease-in-out infinite;
     }
+    
+    .camera-image img {
+        display: block; 
+        margin-left: auto; 
+        margin-right: auto;
+        width: 100%;
+        height: auto;
+        border-radius: 8px;
+        border: 1px solid #00eaff;
+        box-shadow: 0 0 12px #00eaff66;
+        margin-bottom: 8px;
+        transition: transform 0.3s ease;
+    }
+    
+    .camera-image img:hover {
+        transform: scale(1.03);
+    }
 
     @keyframes scroll-up-down {
       0%   { transform: translateY(0); }
@@ -410,16 +429,42 @@
       75%  { transform: translateY(-400px); }
       100% { transform: translateY(0); }
     }
-
+    
+      #groupedBar {
+        width: 100%;
+        height: 280px;          /* ปรับความสูงตามต้องการ */
+      }
+      @media (min-width: 1360px) {
+        #groupedBar { height: 320px; }
+      }
+      
+    #pie {
+      width: 80%;
+      height: 80%;
+      box-shadow: 0 0 20px #00ffffaa;
+      border-radius: 12px;
+      background: rgba(0,0,0,0.4);
+      backdrop-filter: blur(12px);
+      padding: 8px;
+    }
+    
+    #stackedBar {
+      width: 90%;
+      height: 80%;
+      box-shadow: 0 0 20px #00ffffaa;
+      border-radius: 12px;
+      background: rgba(0,0,0,0.4);
+      backdrop-filter: blur(12px);
+      padding: 8px;
+    }
 
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-
   <div class="layout">
     <div class="background">
-        <iframe id="skfb-frame" width="100%" height="600" frameborder="0" allow="autoplay; fullscreen; xr-spatial-tracking" allowfullscreen></iframe>
+      <iframe id="skfb-frame" allow="autoplay; fullscreen; xr-spatial-tracking" allowfullscreen></iframe>
     </div>
 
     <div class="top">
@@ -490,7 +535,14 @@
 
 
     <div class="left">
-      <h3 id="cameraNameBox">📷 รอกด Annotation กล้อง...</h3>
+      <div class="card">
+        <h3 id="cameraNameBox">Digital Building</h3>
+        <div class="camera-image" id="infoBox">-</div>
+        <h3 id="infoBox1">-</h3>
+      </div>
+      
+      <div class="scrolling-wrapper">
+      <div class="scrolling-content">
       <div class="card">
         <h3>
           <svg width="20" height="20" fill="#0ff" viewBox="0 0 24 24">
@@ -500,22 +552,23 @@
           <div class="electrical-grid">
             <div class="metric">
               <strong style="color: #0ff;">Offline</strong>
-              <div>0</div>
+              <div id="infoBox2">-</div>
             </div>
             <div class="metric">
               <strong style="color: #0ff;">Intruder</strong>
-              <div>0</div>
+              <div id="infoBox3">-</div>
             </div>
             <div class="metric">
               <strong style="color: #0ff;">Online</strong>
-              <div>42</div>
+              <div id="infoBox4">-</div>
             </div>
             <div class="metric">
               <strong style="color: #0ff;">Total</strong>
-              <div>42</div>
+              <div id="infoBox5">-</div>
             </div>
           </div>
-      </div><br></br>
+          <div id="groupedBar"></div>
+      </div>
       <div class="card">
         <h3>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -526,22 +579,38 @@
           <div class="electrical-grid">
             <div class="metric">
               <strong style="color: #0ff;">Voltage</strong>
-              <div>${Electrical_Voltage}V</div>
+              <div id="infoBox6">-</div>
             </div>
             <div class="metric">
               <strong style="color: #0ff;">Current</strong>
-              <div>${Electrical_Current}A</div>
+              <div id="infoBox7">-</div>
             </div>
             <div class="metric">
               <strong style="color: #0ff;">Power</strong>
-              <div>${Electrical_ActivePower}W</div>
+              <div id="infoBox8">-</div>
             </div>
             <div class="metric">
               <strong style="color: #0ff;">Frequency</strong>
-              <div>${Electrical_Frequency}Hz</div>
+              <div id="infoBox9">-</div>
             </div>
           </div>
-      </div><br></br>
+
+        <div class="card">
+          <h3>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M14.31 8l5.74 9.94"></path>
+              <path d="M9.69 8h11.48"></path>
+              <path d="M7.38 12l5.74-9.94"></path>
+              <path d="M9.69 16L3.95 6.06"></path>
+              <path d="M14.31 16H2.83"></path>
+              <path d="M16.62 12l-5.74 9.94"></path>
+            </svg> Floor Distribution
+          </h3>
+          <div id="floorDonut" style="width:100%; height:300px;"></div>
+        </div>          
+          
+      </div>
       <div class="card">
         <h3> 
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -552,21 +621,27 @@
           <div class="electrical-grid">
             <div class="metric">
               <strong style="color: #0ff;">Flow Rate</strong>
-              <div>$FlowRate L/min</div>
+              <div id="infoBox10">-</div>
             </div>
             <div class="metric">
               <strong style="color: #0ff;">Water Usage</strong>
-              <div>$Volumn L</div>
+              <div id="infoBox11">-</div>
             </div>
             <div class="metric">
               <strong style="color: #0ff;">Duration (Days)</strong>
-              <div>$counterValue days</div>
+              <div id="infoBox12">-</div>
             </div>
             <div class="metric">
-              <strong style="color: #0ff;"></strong>
-              <div></div>
+              <strong style="color: #0ff;">Duration (Months)</strong>
+              <div id="infoBox13">-</div>
             </div>
           </div>
+            <div class="card">
+              <h3>Volume Monitoring</h3>
+              <div id="area" style="width:100%; height:300px;"></div>
+            </div>
+      </div>
+      </div>
       </div>
     </div>
 
@@ -584,39 +659,43 @@
           <div class="electrical-grid">
             <div class="metric">
               <strong style="color: #0ff;">Temp</strong>
-              <div>${FreshAirTemp} C</div>
+              <div id="infoBox14">-</div>
             </div>
             <div class="metric">
               <strong style="color: #0ff;">Humidity</strong>
-              <div>${FreshAirHumidity} %RH</div>
+              <div id="infoBox15">-</div>
             </div>
             <div class="metric">
               <strong style="color: #0ff;">PM2d5</strong>
-              <div>${FreshAirPM2d5} ug</div>
+              <div id="infoBox16">-</div>
             </div>
             <div class="metric">
               <strong style="color: #0ff;">PM10</strong>
-              <div>${FreshAirPM10} ug</div>
+              <div id="infoBox17">-</div>
             </div>
           </div>
           <div class="electrical-grid">
             <div class="metric">
               <strong style="color: #0ff;">TVOC</strong>
-              <div>${FreshAirTVOC} ug</div>
+              <div id="infoBox18">-</div>
             </div>
             <div class="metric">
               <strong style="color: #0ff;">CH2O</strong>
-              <div>${FreshAireCH2O} ug</div>
+              <div id="infoBox19">-</div>
             </div>
             <div class="metric">
               <strong style="color: #0ff;">CO2</strong>
-              <div>${FreshAireeCO2} ppm</div>
+              <div id="infoBox20">-</div>
             </div>
             <div class="metric">
-              <strong style="color: #0ff;">Note:</strong>
-              <div>เป็นค่าล่าสุดที่ค้างไว้</div>
+              <strong style="color: #0ff;">N2</strong>
+              <div id="infoBox21">-</div>
             </div>
           </div>
+        <div class="card">
+          <h3>Air Quality Radar</h3>
+            <div id="radar" style="width:100%; height:300px;"></div>
+        </div>
       </div>
       <div class="card">
         <h3>
@@ -628,7 +707,7 @@
             <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
             <line x1="1" y1="12" x2="3" y2="12"/>
             <line x1="21" y1="12" x2="23" y2="12"/>
-          </svg> Solar Cell<br></br>
+          </svg> Solar Cell
         </h3>
           <div class="electrical-grid">
             <div class="metric">
@@ -648,12 +727,23 @@
               <div>105<br>Sites</div>
             </div>
           </div>
+          
+        <div class="card">
+          <h3>Solar Halo (Power vs Time)</h3>
+          <div id="solarHalo" style="width:100%; height:320px;"></div>
+        </div>
+        
+        <div class="card">
+          <h3>Daily Energy – Calendar Heatmap</h3>
+          <div id="solarCal" style="width:100%; height:320px;"></div>
+        </div>
+          
       </div>
       <div class="card">
         <h3>
           <svg width="24" height="24" viewBox="0 0 640 512" fill="none" stroke="#0ff" stroke-width="24" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
             <path d="M624 352h-16V256c0-26.5-21.5-48-48-48h-64l-64-96H272c-26.5 0-48 21.5-48 48v192H80c-26.5 0-48 21.5-48 48s21.5 48 48 48h32c0 35.3 28.7 64 64 64s64-28.7 64-64h160c0 35.3 28.7 64 64 64s64-28.7 64-64h16c26.5 0 48-21.5 48-48s-21.5-48-48-48zM400 128h49.6l38.4 64H400V128zM176 448c-17.7 0-32-14.3-32-32s14.3-32 32-32 32 14.3 32 32-14.3 32-32 32zm288 0c-17.7 0-32-14.3-32-32s14.3-32 32-32 32 14.3 32 32-14.3 32-32 32zm96-96H80v-16h480v16z"/>
-          </svg> Logistics<br></br>
+          </svg> Logistics
         </h3>
           <div class="electrical-grid">
             <div class="metric">
@@ -662,18 +752,20 @@
             </div>
             <div class="metric">
               <strong style="color: #0ff;">Waiting</strong>
-              <div>40 Orders</div>
+              <div>40<br>Orders</div>
             </div>
             <div class="metric">
               <strong style="color: #0ff;">Sent</strong>
-              <div>60 Orders</div>
+              <div>60<br>Orders</div>
             </div>
             <div class="metric">
               <strong style="color: #0ff;">Total</strong>
-              <div>100 Orders</div>
+              <div>100<br>Orders</div>
             </div>
           </div>
+          <div id="stackedBar"></div>
       </div>
+      
       <br>
         </div>
     </div>
@@ -1099,29 +1191,277 @@
   <script>
     const iframe = document.getElementById('skfb-frame');
     const client = new Sketchfab(iframe);
-    let CameraName = '';
+    
+    function formatCeil2(num) {
+        const n = parseFloat(num);
+        if (isNaN(n)) return num; // ถ้าไม่ใช่ตัวเลข คืนค่าเดิม
+        return Math.ceil(n * 100) / 100;
+    }
 
-    // ฟังก์ชันที่ทำการอัปเดตค่าใน cameraNameBox
+    function getTextFromGoogleSheet(cameraId) {
+      const sheetID = "1pG8ldAgtHsOzlVxjITuBp2XCS77Sdk15fvmR-YU-MDg";
+      const sheetName = "Data";
+      const url = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
+
+      fetch(url)
+        .then(res => res.text())
+        .then(data => {
+          const jsonData = JSON.parse(data.substr(47).slice(0, -2));
+          const rows = jsonData.table.rows;
+
+          for (let i = 0; i < rows.length; i++) {
+            const row = rows[i].c;
+            if (row[0] && row[0].v === cameraId) {
+              const text0 = row[1]?.v ?? 'ไม่พบข้อมูล';
+              const img1 = row[2]?.v ?? 'ไม่พบข้อมูล';
+                
+              const text1 = row[3]?.v ?? 'ไม่พบข้อมูล';
+              const text2 = row[4]?.v ?? 'ไม่พบข้อมูล';
+              const text3 = row[5]?.v ?? 'ไม่พบข้อมูล';
+              const text4 = row[6]?.v ?? 'ไม่พบข้อมูล';
+              
+                const text5 = row[7]?.v ?? 'ไม่พบข้อมูล';
+                const text6 = row[8]?.v ?? 'ไม่พบข้อมูล';
+                const text7 = row[9]?.v ?? 'ไม่พบข้อมูล';
+                const text8 = row[10]?.v ?? 'ไม่พบข้อมูล';
+                
+                const text9 = row[11]?.v ?? 'ไม่พบข้อมูล';
+                const text10 = row[12]?.v ?? 'ไม่พบข้อมูล';
+                const text11 = row[13]?.v ?? 'ไม่พบข้อมูล';
+                const text12 = row[14]?.v ?? 'ไม่พบข้อมูล';
+                
+                const text13 = row[15]?.v ?? 'ไม่พบข้อมูล';
+                const text14 = row[16]?.v ?? 'ไม่พบข้อมูล';
+                const text15 = row[17]?.v ?? 'ไม่พบข้อมูล';
+                const text16 = row[18]?.v ?? 'ไม่พบข้อมูล';
+                
+                const text17 = row[19]?.v ?? 'ไม่พบข้อมูล';
+                const text18 = row[20]?.v ?? 'ไม่พบข้อมูล';
+                const text19 = row[21]?.v ?? 'ไม่พบข้อมูล';
+                const text20 = row[22]?.v ?? 'ไม่พบข้อมูล';
+                
+              document.getElementById("infoBox").innerHTML = `<img src="${img1}" alt="ภาพจากกล้อง">`;
+
+              document.getElementById("infoBox1").innerHTML = text0;
+              document.getElementById("infoBox2").innerHTML = text1;
+              document.getElementById("infoBox3").innerHTML = text2;
+              document.getElementById("infoBox4").innerHTML = text3;
+              document.getElementById("infoBox5").innerHTML = text4;
+             
+                
+                document.getElementById("infoBox6").innerHTML  = formatCeil2(text5)  + "V";
+                document.getElementById("infoBox7").innerHTML  = formatCeil2(text6)  + "A";
+                document.getElementById("infoBox8").innerHTML  = formatCeil2(text7)  + "kW";
+                document.getElementById("infoBox9").innerHTML  = formatCeil2(text8)  + "Hz";
+                
+                document.getElementById("infoBox10").innerHTML = formatCeil2(text9)  + "<br>L/min";
+                document.getElementById("infoBox11").innerHTML = formatCeil2(text10) + "<br>Liter";
+                document.getElementById("infoBox12").innerHTML = formatCeil2(text11) + "<br>Days";
+                document.getElementById("infoBox13").innerHTML = formatCeil2(text12) + "<br>Months";
+                
+                document.getElementById("infoBox14").innerHTML = formatCeil2(text13) + "C";
+                document.getElementById("infoBox15").innerHTML = formatCeil2(text14) + "%RH";
+                document.getElementById("infoBox16").innerHTML = formatCeil2(text15) + "ug";
+                document.getElementById("infoBox17").innerHTML = formatCeil2(text16) + "ug";
+                
+                document.getElementById("infoBox18").innerHTML = formatCeil2(text17) + "ug";
+                document.getElementById("infoBox19").innerHTML = formatCeil2(text18) + "ug";
+                document.getElementById("infoBox20").innerHTML = formatCeil2(text19) + "<br>ppm";
+                document.getElementById("infoBox21").innerHTML = formatCeil2(text20) + "<br>ppm";
+                          
+              break;
+            }
+          }
+        })
+        .catch(err => console.error("❌ Error loading Google Sheet:", err));
+    }
+
     client.init('7adcd28260174cf58dd2672e1e189426', {
-      success: function (api) {
+      success: function(api) {
         api.start();
-        api.addEventListener('viewerready', function () {
-          api.addEventListener('annotationFocus', function (index) {
-            api.getAnnotation(index, function (err, annotation) {
+        api.addEventListener('viewerready', function() {
+          api.addEventListener('annotationFocus', function(index) {
+            api.getAnnotation(index, function(err, annotation) {
               if (!err && annotation?.name) {
-                CameraName = annotation.name;
-                // อัปเดตค่าใน cameraNameBox
-                document.getElementById('cameraNameBox').innerText = 'ชั้น ' + CameraName;
+                const CameraName = annotation.name;
+                document.getElementById('cameraNameBox').innerText = "Digital Building - " + CameraName;
+                getTextFromGoogleSheet(CameraName);
               }
             });
           });
         });
       },
-      error: function () {
+      error: function() {
         console.error('❌ โหลด Sketchfab API ไม่ได้');
       }
     });
   </script>
+  
+<script>
+  const NEON = {
+    font: 'Orbitron, sans-serif',
+    fg:   '#e0faff',
+    neon: '#00ffff',
+    grid: '#00ffff33',
+    gridSoft: '#00ffff22',
+    colors: ['#00eaff','#00bfff','#0099ff','#007bff','#0055ff']
+  };
+  const PLOT_CONFIG = { displayModeBar: false, responsive: true };
+
+  function _metrics(containerId) {
+    const el = document.getElementById(containerId);
+    const r = el ? el.getBoundingClientRect() : { width: 320, height: 300 };
+    const w = Math.max(240, r.width);
+    const h = Math.max(220, r.height);
+    let scale = 1.0;
+    if (w <= 340) scale = 0.86; 
+    else if (w <= 520) scale = 1.0; 
+    else scale = 1.12;
+    return { w, h, scale };
+  }
+
+  function axisNeon(extra = {}) {
+    return Object.assign({
+      tickfont: { color: NEON.neon },
+      gridcolor: NEON.grid,
+      zeroline: false
+    }, extra);
+  }
+  function markerNeon(i = 0) {
+    return { color: NEON.colors[i % NEON.colors.length], line: { width: 1.5, color: NEON.neon } };
+  }
+
+  function neonLayoutAuto(containerId, titleText = '', opts = {}) {
+    const { h, scale } = _metrics(containerId);
+    const titleSize = Math.round(18 * scale);
+    const margin = { l: 58*scale, r: 20, t: 40*scale, b: 64*scale };
+    const legendY = (h <= 300) ? -0.28 : -0.22;
+
+    const base = {
+      title: { text: titleText, font: { family: NEON.font, size: titleSize, color: NEON.neon } },
+      paper_bgcolor: 'rgba(0,0,0,0)',
+      plot_bgcolor:  'rgba(0,0,0,0)',
+      font: { family: NEON.font, color: NEON.fg },
+      legend: {
+        orientation: 'h',
+        x: 0.5, xanchor: 'center',
+        y: legendY, yanchor: 'top',
+        font: { color: NEON.neon, size: 12*scale },
+        bgcolor: 'rgba(0,0,0,0)'
+      },
+      margin: margin
+    };
+    return Object.assign({}, base, opts);
+  }
+</script>
+
+<script>
+  const years = ['2023','2024','2025'];
+  const gbTrace1 = { y: years, x: [20,14,23], name: 'Intruder', type: 'bar', orientation: 'h', marker: markerNeon(0) };
+  const gbTrace2 = { y: years, x: [12,18,29], name: 'Offline',  type: 'bar', orientation: 'h', marker: markerNeon(3) };
+  const maxX = Math.max(...gbTrace1.x, ...gbTrace2.x);
+
+  const gbLayout = neonLayoutAuto('groupedBar', 'Alarm Summary', {
+    barmode: 'group',
+    xaxis: axisNeon({ range: [0, Math.ceil(maxX*1.25)] }),
+    yaxis: axisNeon({ gridcolor: NEON.gridSoft })
+  });
+  Plotly.newPlot('groupedBar', [gbTrace1, gbTrace2], gbLayout, PLOT_CONFIG);
+</script>
+
+<script>
+  const floorData = [{
+    values: [15, 20, 25, 18, 22],
+    labels: ['1st_Floor','2nd_Floor','3rd_Floor','4th_Floor','5th_Floor (M_Floor)'],
+    type: 'pie', hole: .4,
+    marker: { colors: NEON.colors, line: { color: NEON.neon, width: 2 } },
+    textinfo: "label+percent",
+    textfont: { family: NEON.font, color: NEON.fg }
+  }];
+  const floorLayout = neonLayoutAuto('floorDonut', 'Floor Distribution');
+  Plotly.newPlot('floorDonut', floorData, floorLayout, PLOT_CONFIG);
+</script>
+
+<script>
+  const areaTrace = {
+    x: ['10:00','11:00','12:00','13:00','14:00'],
+    y: [10,25,18,30,45],
+    type: 'scatter', mode: 'lines', fill: 'tozeroy',
+    line: { color: NEON.colors[0], width: 3 },
+    fillcolor: 'rgba(0,255,255,0.25)', name: 'Volume'
+  };
+  const areaLayout = neonLayoutAuto('area', 'Area Chart', {
+    xaxis: axisNeon({ title: { text: 'Time', font: { color: NEON.neon } } }),
+    yaxis: axisNeon({ title: { text: 'Volume', font: { color: NEON.neon } } })
+  });
+  Plotly.newPlot('area', [areaTrace], areaLayout, PLOT_CONFIG);
+</script>
+
+<script>
+  const radarTrace = {
+    type: 'scatterpolar',
+    r: [39,28,15,20,45,39],
+    theta: ['PM2.5','PM10','TVDC','CH2O','CO2','PM2.5'],
+    fill: 'toself', line: { color: NEON.colors[0], width: 3 },
+    fillcolor: 'rgba(0,255,255,0.25)'
+  };
+  const radarLayout = neonLayoutAuto('radar', 'Air Quality', {
+    polar: {
+      bgcolor: 'rgba(0,0,0,0)',
+      radialaxis: { visible: true, gridcolor: NEON.grid, tickfont: { color: NEON.neon } },
+      angularaxis:{ gridcolor: NEON.grid, tickfont: { color: NEON.neon } }
+    }
+  });
+  Plotly.newPlot('radar', [radarTrace], radarLayout, PLOT_CONFIG);
+</script>
+
+<script>
+  const cars = ['Car1','Car2','Car3','Car4','Car5'];
+  const sent = { x: cars, y: [20,14,23,25,18], name: 'Sent', type: 'bar', marker: markerNeon(0) };
+  const hold = { x: cars, y: [12,18,29,17,22], name: 'Hold', type: 'bar', marker: markerNeon(3) };
+
+  const stkLayout = neonLayoutAuto('stackedBar', 'Logistics Status', {
+    barmode: 'stack',
+    xaxis: axisNeon({ title: { text: 'Vehicles', font: { color: NEON.neon } } }),
+    yaxis: axisNeon({ title: { text: 'Orders',   font: { color: NEON.neon } } })
+  });
+  Plotly.newPlot('stackedBar', [sent, hold], stkLayout, PLOT_CONFIG);
+</script>
+
+<script>
+  function renderSolarHalo(containerId) {
+    const hours = [...Array(24)].map((_,i)=>i);
+    const sample = hours.map(h => Math.max(0,1-((h-12)/6)**2)*1000);
+    const trace = { type:'scatterpolar', r:sample, theta:hours.map(h=>`${h}:00`),
+      fill:'toself', line:{color:NEON.colors[0],width:3}, fillcolor:'rgba(0,255,255,0.25)' };
+    const layout = neonLayoutAuto(containerId,'Solar Halo',{
+      polar:{ radialaxis:{gridcolor:NEON.grid,tickfont:{color:NEON.neon}},
+              angularaxis:{gridcolor:NEON.grid,tickfont:{color:NEON.neon}} }
+    });
+    Plotly.newPlot(containerId,[trace],layout,PLOT_CONFIG);
+  }
+  renderSolarHalo('solarHalo');
+</script>
+
+<script>
+  function renderSolarCalendar(containerId, daysInMonth=30) {
+    const days = Array.from({length:daysInMonth},(_,i)=>i+1);
+    const weeks = Math.ceil(daysInMonth/7);
+    const weekLabels = Array.from({length:weeks},(_,i)=>`Week ${i+1}`);
+    const grid = Array.from({length:weeks},()=>Array(7).fill(null));
+    const sample = days.map(d=>Math.round(30+20*Math.sin((d/daysInMonth)*Math.PI)));
+    days.forEach((d,i)=>{const w=Math.floor(i/7),c=i%7;grid[w][c]=sample[i];});
+    const heat = { z:grid, x:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], y:weekLabels,
+      type:'heatmap', colorscale:[[0,'rgba(0,40,80,1)'],[0.3,'rgba(0,120,180,1)'],[0.6,'rgba(0,200,255,1)'],[1,'rgba(0,255,255,1)']],
+      colorbar:{tickfont:{color:NEON.neon},title:{text:'kWh/day',font:{color:NEON.neon}}} };
+    const layout = neonLayoutAuto(containerId,'Daily Energy – Calendar Heatmap',{xaxis:axisNeon(),yaxis:axisNeon()});
+    Plotly.newPlot(containerId,[heat],layout,PLOT_CONFIG);
+  }
+  renderSolarCalendar('solarCal',30);
+</script>
+
+
 
 </body>
 </html>
+
