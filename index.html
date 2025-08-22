@@ -402,7 +402,13 @@
     .scrolling-content {
       position: absolute;
       width: 100%;
-      animation: scroll-up-down 250s ease-in-out infinite;
+      animation: scroll-up-down-right 250s ease-in-out infinite;
+    }
+    
+    .scrolling-content-left {
+      position: absolute;
+      width: 100%;
+      animation: scroll-up-down-left 250s ease-in-out infinite;
     }
     
     .camera-image img {
@@ -422,11 +428,19 @@
         transform: scale(1.03);
     }
 
-    @keyframes scroll-up-down {
+    @keyframes scroll-up-down-left {
       0%   { transform: translateY(0); }
-      25%  { transform: translateY(-2000px); }
+      25%  { transform: translateY(-1400px); }
       50%  { transform: translateY(0); }
-      75%  { transform: translateY(-2000px); }
+      75%  { transform: translateY(-1400px); }
+      100% { transform: translateY(0); }
+    }
+
+    @keyframes scroll-up-down-right {
+      0%   { transform: translateY(0); }
+      25%  { transform: translateY(-2100px); }
+      50%  { transform: translateY(0); }
+      75%  { transform: translateY(-2100px); }
       100% { transform: translateY(0); }
     }
     
@@ -542,7 +556,7 @@
       </div>
       
       <div class="scrolling-wrapper">
-      <div class="scrolling-content">
+      <div class="scrolling-content-left">
       <div class="card">
         <h3>
           <svg width="20" height="20" fill="#0ff" viewBox="0 0 24 24">
@@ -1298,173 +1312,360 @@
   </script>
   
 <script>
-  const NEON = {
-    font: 'Orbitron, sans-serif',
-    fg:   '#e0faff',
-    neon: '#00ffff',
-    grid: '#00ffff33',
-    gridSoft: '#00ffff22',
-    colors: ['#00eaff','#00bfff','#0099ff','#007bff','#0055ff']
+  // ข้อมูล (แนวนอน = y คือหมวดหมู่, x คือค่า)
+  var years = ['2023','2024','2025'];
+
+  var trace1 = { 
+    y: years,
+    x: [20,14,23],
+    name: 'Intruder',
+    type: 'bar',
+    orientation: 'h',
+    marker: {
+      color: '#00eaff',
+      line: { width: 1.5, color: '#00ffff' }
+    }
   };
-  const PLOT_CONFIG = { displayModeBar: false, responsive: true };
 
-  function _metrics(containerId) {
-    const el = document.getElementById(containerId);
-    const r = el ? el.getBoundingClientRect() : { width: 320, height: 300 };
-    const w = Math.max(240, r.width);
-    const h = Math.max(220, r.height);
-    let scale = 1.0;
-    if (w <= 340) scale = 0.86; 
-    else if (w <= 520) scale = 1.0; 
-    else scale = 1.12;
-    return { w, h, scale };
-  }
+  var trace2 = { 
+    y: years,
+    x: [12,18,29],
+    name: 'Offline',
+    type: 'bar',
+    orientation: 'h',
+    marker: {
+      color: '#007bff',
+      line: { width: 1.5, color: '#00ffff' }
+    }
+  };
 
-  function axisNeon(extra = {}) {
-    return Object.assign({
-      tickfont: { color: NEON.neon },
-      gridcolor: NEON.grid,
+  var data = [trace1, trace2];
+
+  // คำนวณ max เพื่อขยายแกน x ให้แท่ง “ยาว” เต็มพื้นที่
+  var maxX = Math.max(...trace1.x, ...trace2.x);
+  var layout = { 
+    barmode: 'group',
+    bargap: 0.25,
+    title: {
+    text: 'Alarm Summary',      
+    font: { family: 'Orbitron, sans-serif', size: 20, color: '#00ffff' }
+    },
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    plot_bgcolor: 'rgba(0,0,0,0)',
+    font: { family: 'Orbitron, sans-serif', color: '#e0faff' },
+
+    // แกนแนวนอน (ความยาวของแท่ง)
+    xaxis: {
+      range: [0, Math.ceil(maxX * 1.25)],   // ขยาย 25% ให้แท่งดูยาวขึ้น
+      gridcolor: '#00ffff33',
+      tickfont: { color: '#00ffff' },
       zeroline: false
-    }, extra);
-  }
-  function markerNeon(i = 0) {
-    return { color: NEON.colors[i % NEON.colors.length], line: { width: 1.5, color: NEON.neon } };
-  }
+    },
 
-  function neonLayoutAuto(containerId, titleText = '', opts = {}) {
-    const { h, scale } = _metrics(containerId);
-    const titleSize = Math.round(18 * scale);
-    const margin = { l: 58*scale, r: 20, t: 40*scale, b: 64*scale };
-    const legendY = (h <= 300) ? -0.28 : -0.22;
+    // แกนรายการ (ปี)
+    yaxis: {
+      tickfont: { color: '#00ffff' },
+      gridcolor: '#00ffff22',
+      automargin: true
+    },
 
-    const base = {
-      title: { text: titleText, font: { family: NEON.font, size: titleSize, color: NEON.neon } },
+    // Legend ล่าง แนวนอน
+    legend: {
+      orientation: 'h',
+      x: 0.5, xanchor: 'center',
+      y: -0.2, yanchor: 'top',
+      font: { color: '#00ffff' },
+      bgcolor: 'rgba(0,0,0,0)'
+    },
+
+    margin: { l: 60, r: 12, t: 48, b: 60 }
+  };
+
+  var config = { displayModeBar: false, responsive: true };
+
+  Plotly.newPlot('groupedBar', data, layout, config);
+</script>
+
+<script>
+  var dataFloor = [{
+    values: [15, 20, 25, 18, 22],  
+    labels: ['1st_Floor', '2nd_Floor', '3rd_Floor', '4th_Floor', '5th_Floor (M_Floor)'],
+    type: 'pie',
+    hole: .4, // Donut
+    marker: {
+      colors: ['#00eaff','#00bfff','#0099ff','#007bff','#0055ff'],
+      line: { color: '#00ffff', width: 2 }
+    },
+    textinfo: "label+percent",
+    textfont: { family: 'Orbitron, sans-serif', color: '#e0faff', size: 13 }
+  }];
+
+  var layoutFloor = {
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    plot_bgcolor: 'rgba(0,0,0,0)',
+    font: { family: 'Orbitron, sans-serif', color: '#e0faff' },
+    legend: {
+      orientation: 'h',
+      x: 0.5, xanchor: 'center',
+      y: -0.3, yanchor: 'top',
+      font: { color: '#00ffff' },
+      bgcolor: 'rgba(0,0,0,0)'
+    },
+    margin: { t: 20, b: 60 }
+  };
+
+  Plotly.newPlot('floorDonut', dataFloor, layoutFloor, {displayModeBar: false, responsive: true});
+</script>
+
+<script>
+  var trace1 = {
+    x: ['10:00','11:00','12:00','13:00','14:00'], // เวลา (Time)
+    y: [10, 25, 18, 30, 45], // ปริมาณ (Volume)
+    fill: 'tozeroy',
+    type: 'scatter',
+    mode: 'lines',
+    line: { color: '#00eaff', width: 3 },
+    fillcolor: 'rgba(0, 255, 255, 0.25)',
+    name: 'Volume'
+  };
+
+  var data = [trace1];
+
+  var layout = { 
+    title: {
+      text: 'Area Chart',
+      font: { family: 'Orbitron, sans-serif', size: 22, color: '#00ffff' }
+    },
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    plot_bgcolor: 'rgba(0,0,0,0)',
+    font: { family: 'Orbitron, sans-serif', color: '#e0faff' },
+    xaxis: {
+      title: { text: 'Time', font: { color: '#00ffff' } },
+      tickfont: { color: '#00ffff' },
+      gridcolor: '#00ffff33',
+      zeroline: false
+    },
+    yaxis: {
+      title: { text: 'Volume', font: { color: '#00ffff' } },
+      tickfont: { color: '#00ffff' },
+      gridcolor: '#00ffff33',
+      zeroline: false
+    },
+    legend: {
+      orientation: 'h',
+      x: 0.5, xanchor: 'center',
+      y: -0.2, yanchor: 'top',
+      font: { color: '#00ffff' },
+      bgcolor: 'rgba(0,0,0,0)'
+    },
+    margin: { l: 70, r: 30, t: 60, b: 80 }
+  };
+
+  Plotly.newPlot('area', data, layout, {displayModeBar: false, responsive: true});
+</script>
+
+<script>
+  var radarData = [{
+    type: 'scatterpolar',
+    r: [39, 28, 15, 20, 45, 39], // ค่าตัวอย่างของแต่ละ parameter
+    theta: ['PM2.5','PM10','TVDC','CH2O','CO2','PM2.5'], // ปิด loop ด้วย PM2.5
+    fill: 'toself',
+    name: 'Environment',
+    line: { color: '#00eaff', width: 3 },
+    fillcolor: 'rgba(0, 255, 255, 0.25)'
+  }];
+
+  var radarLayout = {
+    title: {
+      text: 'Air Quality Parameters',
+      font: { family: 'Orbitron, sans-serif', size: 22, color: '#00ffff' }
+    },
+    polar: { 
+      bgcolor: 'rgba(0,0,0,0)',
+      radialaxis: { 
+        visible: true,
+        gridcolor: '#00ffff33',
+        linecolor: '#00ffff',
+        tickfont: { color: '#00ffff' }
+      },
+      angularaxis: {
+        gridcolor: '#00ffff33',
+        linecolor: '#00ffff',
+        tickfont: { color: '#00ffff' }
+      }
+    },
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    plot_bgcolor: 'rgba(0,0,0,0)',
+    font: { family: 'Orbitron, sans-serif', color: '#e0faff' },
+    legend: {
+      orientation: 'h',
+      x: 0.5, xanchor: 'center',
+      y: -0.2, yanchor: 'top',
+      font: { color: '#00ffff' },
+      bgcolor: 'rgba(0,0,0,0)'
+    },
+    margin: { t: 60, b: 80 }
+  };
+
+  Plotly.newPlot('radar', radarData, radarLayout, {displayModeBar: false, responsive: true});
+</script>
+
+  <script>
+    // ข้อมูลตัวอย่าง
+    var traceSent = { 
+      x: ['Car1','Car2','Car3','Car4','Car5'], 
+      y: [20, 14, 23, 25, 18], 
+      name: 'Sent', 
+      type: 'bar',
+      marker: { color: '#00eaff', line: { width: 1.5, color: '#00ffff' } }
+    };
+
+    var traceHold = { 
+      x: ['Car1','Car2','Car3','Car4','Car5'], 
+      y: [12, 18, 29, 17, 22], 
+      name: 'Hold', 
+      type: 'bar',
+      marker: { color: '#007bff', line: { width: 1.5, color: '#00ffff' } }
+    };
+
+    var data = [traceSent, traceHold];
+
+    var layout = { 
+      barmode: 'stack',
+      title: {
+        text: 'Logistics Status (Car1 - Car5)',
+        font: { family: 'Orbitron, sans-serif', size: 22, color: '#00ffff' }
+      },
       paper_bgcolor: 'rgba(0,0,0,0)',
-      plot_bgcolor:  'rgba(0,0,0,0)',
-      font: { family: NEON.font, color: NEON.fg },
+      plot_bgcolor: 'rgba(0,0,0,0)',
+      font: { family: 'Orbitron, sans-serif', color: '#e0faff' },
+      xaxis: {
+        title: { text: 'Vehicles', font: { color: '#00ffff' } },
+        tickfont: { color: '#00ffff' },
+        gridcolor: '#00ffff33',
+        zeroline: false
+      },
+      yaxis: {
+        title: { text: 'Orders', font: { color: '#00ffff' } },
+        tickfont: { color: '#00ffff' },
+        gridcolor: '#00ffff33',
+        zeroline: false
+      },
       legend: {
         orientation: 'h',
         x: 0.5, xanchor: 'center',
-        y: legendY, yanchor: 'top',
-        font: { color: NEON.neon, size: 12*scale },
+        y: -0.2, yanchor: 'top',
+        font: { color: '#00ffff' },
         bgcolor: 'rgba(0,0,0,0)'
       },
-      margin: margin
+      margin: { l: 70, r: 30, t: 60, b: 80 }
     };
-    return Object.assign({}, base, opts);
-  }
-</script>
+
+    Plotly.newPlot('stackedBar', data, layout, {displayModeBar: false, responsive: true});
+  </script>
 
 <script>
-  const years = ['2023','2024','2025'];
-  const gbTrace1 = { y: years, x: [20,14,23], name: 'Intruder', type: 'bar', orientation: 'h', marker: markerNeon(0) };
-  const gbTrace2 = { y: years, x: [12,18,29], name: 'Offline',  type: 'bar', orientation: 'h', marker: markerNeon(3) };
-  const maxX = Math.max(...gbTrace1.x, ...gbTrace2.x);
+  // เรียกใช้งาน: renderSolarHalo('solarHalo', powerArray[24]);
+  // ถ้าไม่ส่ง powerArray จะใช้ตัวอย่างข้อมูลอัตโนมัติ
+  function renderSolarHalo(containerId, powerArray) {
+    const hours = [...Array(24)].map((_, i) => i); // 0..23
 
-  const gbLayout = neonLayoutAuto('groupedBar', 'Alarm Summary', {
-    barmode: 'group',
-    xaxis: axisNeon({ range: [0, Math.ceil(maxX*1.25)] }),
-    yaxis: axisNeon({ gridcolor: NEON.gridSoft })
-  });
-  Plotly.newPlot('groupedBar', [gbTrace1, gbTrace2], gbLayout, PLOT_CONFIG);
-</script>
-
-<script>
-  const floorData = [{
-    values: [15, 20, 25, 18, 22],
-    labels: ['1st_Floor','2nd_Floor','3rd_Floor','4th_Floor','5th_Floor (M_Floor)'],
-    type: 'pie', hole: .4,
-    marker: { colors: NEON.colors, line: { color: NEON.neon, width: 2 } },
-    textinfo: "label+percent",
-    textfont: { family: NEON.font, color: NEON.fg }
-  }];
-  const floorLayout = neonLayoutAuto('floorDonut', 'Floor Distribution');
-  Plotly.newPlot('floorDonut', floorData, floorLayout, PLOT_CONFIG);
-</script>
-
-<script>
-  const areaTrace = {
-    x: ['10:00','11:00','12:00','13:00','14:00'],
-    y: [10,25,18,30,45],
-    type: 'scatter', mode: 'lines', fill: 'tozeroy',
-    line: { color: NEON.colors[0], width: 3 },
-    fillcolor: 'rgba(0,255,255,0.25)', name: 'Volume'
-  };
-  const areaLayout = neonLayoutAuto('area', 'Area Chart', {
-    xaxis: axisNeon({ title: { text: 'Time', font: { color: NEON.neon } } }),
-    yaxis: axisNeon({ title: { text: 'Volume', font: { color: NEON.neon } } })
-  });
-  Plotly.newPlot('area', [areaTrace], areaLayout, PLOT_CONFIG);
-</script>
-
-<script>
-  const radarTrace = {
-    type: 'scatterpolar',
-    r: [39,28,15,20,45,39],
-    theta: ['PM2.5','PM10','TVDC','CH2O','CO2','PM2.5'],
-    fill: 'toself', line: { color: NEON.colors[0], width: 3 },
-    fillcolor: 'rgba(0,255,255,0.25)'
-  };
-  const radarLayout = neonLayoutAuto('radar', 'Air Quality', {
-    polar: {
-      bgcolor: 'rgba(0,0,0,0)',
-      radialaxis: { visible: true, gridcolor: NEON.grid, tickfont: { color: NEON.neon } },
-      angularaxis:{ gridcolor: NEON.grid, tickfont: { color: NEON.neon } }
-    }
-  });
-  Plotly.newPlot('radar', [radarTrace], radarLayout, PLOT_CONFIG);
-</script>
-
-<script>
-  const cars = ['Car1','Car2','Car3','Car4','Car5'];
-  const sent = { x: cars, y: [20,14,23,25,18], name: 'Sent', type: 'bar', marker: markerNeon(0) };
-  const hold = { x: cars, y: [12,18,29,17,22], name: 'Hold', type: 'bar', marker: markerNeon(3) };
-
-  const stkLayout = neonLayoutAuto('stackedBar', 'Logistics Status', {
-    barmode: 'stack',
-    xaxis: axisNeon({ title: { text: 'Vehicles', font: { color: NEON.neon } } }),
-    yaxis: axisNeon({ title: { text: 'Orders',   font: { color: NEON.neon } } })
-  });
-  Plotly.newPlot('stackedBar', [sent, hold], stkLayout, PLOT_CONFIG);
-</script>
-
-<script>
-  function renderSolarHalo(containerId) {
-    const hours = [...Array(24)].map((_,i)=>i);
-    const sample = hours.map(h => Math.max(0,1-((h-12)/6)**2)*1000);
-    const trace = { type:'scatterpolar', r:sample, theta:hours.map(h=>`${h}:00`),
-      fill:'toself', line:{color:NEON.colors[0],width:3}, fillcolor:'rgba(0,255,255,0.25)' };
-    const layout = neonLayoutAuto(containerId,'Solar Halo',{
-      polar:{ radialaxis:{gridcolor:NEON.grid,tickfont:{color:NEON.neon}},
-              angularaxis:{gridcolor:NEON.grid,tickfont:{color:NEON.neon}} }
+    // ตัวอย่างโค้งกำลังผลิต (พาราโบลา พีคช่วงเที่ยง)
+    const sample = hours.map(h => {
+      const x = (h - 12) / 6;
+      const base = Math.max(0, 1 - x * x);
+      return Math.round(base * 1000); // W
     });
-    Plotly.newPlot(containerId,[trace],layout,PLOT_CONFIG);
+
+    const power = Array.isArray(powerArray) && powerArray.length === 24 ? powerArray : sample;
+
+    const trace = {
+      type: 'scatterpolar',
+      r: power,
+      theta: hours.map(h => `${h}:00`),
+      fill: 'toself',
+      mode: 'lines',
+      line: { color: '#00eaff', width: 3 },
+      fillcolor: 'rgba(0,255,255,0.25)',
+      name: 'Power'
+    };
+
+    const layout = {
+      paper_bgcolor: 'rgba(0,0,0,0)',
+      font: { family: 'Orbitron, sans-serif', color: '#e0faff' },
+      polar: {
+        bgcolor: 'rgba(0,0,0,0)',
+        radialaxis: { gridcolor: '#00ffff33', tickfont: { color: '#00ffff' } },
+        angularaxis:{ gridcolor: '#00ffff33', tickfont: { color: '#00ffff' } }
+      },
+      legend: {
+        orientation: 'h', x: 0.5, xanchor: 'center', y: -0.2,
+        bgcolor: 'rgba(0,0,0,0)', font: { color: '#00ffff' }
+      },
+      margin: { t: 10, b: 60, l: 10, r: 10 }
+    };
+
+    Plotly.newPlot(containerId, [trace], layout, { displayModeBar:false, responsive:true });
   }
+
+  // ▶ ตัวอย่างการเรียก (ลบ/แก้ได้ตามจริง)
   renderSolarHalo('solarHalo');
 </script>
 
 <script>
-  function renderSolarCalendar(containerId, daysInMonth=30) {
-    const days = Array.from({length:daysInMonth},(_,i)=>i+1);
-    const weeks = Math.ceil(daysInMonth/7);
-    const weekLabels = Array.from({length:weeks},(_,i)=>`Week ${i+1}`);
-    const grid = Array.from({length:weeks},()=>Array(7).fill(null));
-    const sample = days.map(d=>Math.round(30+20*Math.sin((d/daysInMonth)*Math.PI)));
-    days.forEach((d,i)=>{const w=Math.floor(i/7),c=i%7;grid[w][c]=sample[i];});
-    const heat = { z:grid, x:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], y:weekLabels,
-      type:'heatmap', colorscale:[[0,'rgba(0,40,80,1)'],[0.3,'rgba(0,120,180,1)'],[0.6,'rgba(0,200,255,1)'],[1,'rgba(0,255,255,1)']],
-      colorbar:{tickfont:{color:NEON.neon},title:{text:'kWh/day',font:{color:NEON.neon}}} };
-    const layout = neonLayoutAuto(containerId,'Daily Energy – Calendar Heatmap',{xaxis:axisNeon(),yaxis:axisNeon()});
-    Plotly.newPlot(containerId,[heat],layout,PLOT_CONFIG);
-  }
-  renderSolarCalendar('solarCal',30);
-</script>
+  // เรียกใช้งาน: renderSolarCalendar('solarCal', 30, dailyArray);
+  // dailyArray = อาร์เรย์ค่าพลังงานรายวันยาวเท่าจำนวนวัน (เช่น 30 ค่า) หน่วย kWh/วัน
+  // ถ้าไม่ส่ง dailyArray จะใช้ตัวอย่างข้อมูลอัตโนมัติ
+  function renderSolarCalendar(containerId, daysInMonth, dailyArray) {
+    const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+    const weeks = Math.ceil(daysInMonth / 7);
+    const weekLabels = Array.from({ length: weeks }, (_, i) => `Week ${i + 1}`);
 
+    // เตรียมเมทริกซ์ weeks x 7
+    const grid = Array.from({ length: weeks }, () => Array(7).fill(null));
+
+    // ตัวอย่างข้อมูล: สูงช่วงกลางเดือน
+    const sample = days.map(d => Math.round(30 + 20 * Math.sin((d / daysInMonth) * Math.PI)));
+    const data = Array.isArray(dailyArray) && dailyArray.length === daysInMonth ? dailyArray : sample;
+
+    days.forEach((d, i) => {
+      const w = Math.floor(i / 7); // สัปดาห์
+      const c = i % 7;             // วัน 0..6 (Mon..Sun)
+      if (w < grid.length) grid[w][c] = data[i];
+    });
+
+    const heat = {
+      z: grid,
+      x: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+      y: weekLabels,
+      type: 'heatmap',
+      hoverongaps: false,
+      colorscale: [
+        [0,   'rgba(0,40,80,1)'],
+        [0.3, 'rgba(0,120,180,1)'],
+        [0.6, 'rgba(0,200,255,1)'],
+        [1,   'rgba(0,255,255,1)']
+      ],
+      colorbar: { tickfont: { color: '#00ffff' }, title: { text: 'kWh/day', side: 'right', font: { color: '#00ffff' } } }
+    };
+
+    const layout = {
+      paper_bgcolor: 'rgba(0,0,0,0)',
+      plot_bgcolor: 'rgba(0,0,0,0)',
+      font: { family: 'Orbitron, sans-serif', color: '#e0faff' },
+      xaxis: { tickfont: { color: '#00ffff' }, gridcolor: '#00ffff33' },
+      yaxis: { tickfont: { color: '#00ffff' }, gridcolor: '#00ffff33' },
+      margin: { l: 60, r: 20, t: 10, b: 40 }
+    };
+
+    Plotly.newPlot(containerId, [heat], layout, { displayModeBar:false, responsive:true });
+  }
+
+  // ▶ ตัวอย่างการเรียก (ลบ/แก้ได้ตามจริง)
+  renderSolarCalendar('solarCal', 30);
+</script>
 
 
 </body>
 </html>
-
-
-
 
