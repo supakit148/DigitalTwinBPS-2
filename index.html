@@ -438,9 +438,9 @@
 
     @keyframes scroll-up-down-right {
       0%   { transform: translateY(0); }
-      25%  { transform: translateY(-1900px); }
+      25%  { transform: translateY(-2350px); }
       50%  { transform: translateY(0); }
-      75%  { transform: translateY(-1900px); }
+      75%  { transform: translateY(-2350px); }
       100% { transform: translateY(0); }
     }
     
@@ -462,7 +462,11 @@
       padding: 8px;
     }
     
-
+    select, button { background:#000; color:#0ff; border:1px solid #0ff; padding:6px 12px; border-radius:6px; cursor:pointer; }
+    select option { background:#000; color:#0ff; }
+    #dashboard3D { width:100%; height:95vh; }
+    #legendToggle { margin-left: auto; }
+    
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 </head>
@@ -637,7 +641,45 @@
     </div>
 
     <div class="right">
-    <h2>Environment System</h2>
+        <div class="card">
+          <h3>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 12h20M2 6h16M2 18h12"/>
+            </svg>
+            3D Digital Twin Dashboard
+          </h3>
+          
+          <!-- Controls สำหรับเลือก Floor, System, Parameter -->
+          <div class="controls" style="margin-bottom:12px;">
+            <select id="floorSelect3D">
+              <option value="ALL">All Floors</option>
+              <option value="1st_Floor">1st Floor</option>
+              <option value="M_Floor">M Floor</option>
+              <option value="2nd_Floor">2nd Floor</option>
+              <option value="3rd_Floor">3rd Floor</option>
+              <option value="4th_Floor">4th Floor</option>
+              <option value="5th_Floor">5th Floor</option>
+            </select>
+        
+            <select id="systemSelect3D">
+              <option value="ALL">All Systems</option>
+              <option value="CCTV">CCTV</option>
+              <option value="Electrical">Electrical</option>
+              <option value="Water">Water</option>
+              <option value="Air">Air</option>
+            </select>
+        
+            <select id="paramSelect3D">
+              <option value="ALL">All Parameters</option>
+            </select>
+        
+            <button id="legendToggle3D">Show Legend</button>
+          </div>
+        
+          <!-- แสดงผล Plotly 3D -->
+          <div id="dashboard3D" style="width:100%; height:200px;"></div>
+        </div>
+
     <div class="scrolling-wrapper">
       <div class="scrolling-content">
       <div class="card">
@@ -1635,10 +1677,110 @@
   renderSolarCalendar('solarCal', 30);
 </script>
 
+<script>
+const parameters = {
+  CCTV: ["Offline","Online","Intruder","Total"],
+  Electrical: ["Voltage","Current","Power","Frequency"],
+  Water: ["Flow Rate","Water Usage","Duration (Months)","Duration (Days)"],
+  Air: ["Temperature","Humidity","PM2.5","PM10","CO2","TVOC","CH2O"]
+};
+
+const floors = ["1st_Floor","M_Floor","2nd_Floor","3rd_Floor","4th_Floor","5th_Floor"];
+const neonPalette = ["#00FFFF", "#7DF9FF", "#8A2BE2", "#FF00FF", "#00FF7F", "#FF1493", "#1E90FF", "#00CED1"];
+const pointsPerTrace = 72; // ขยายแกน X 3 เท่า
+const xAxisValues = [...Array(pointsPerTrace).keys()];
+
+// สร้างข้อมูลสุ่ม realistic
+function generateData(param) {
+  const base = {
+    "Offline":[0,5], "Online":[5,20], "Intruder":[0,2], "Total":[5,20],
+    "Voltage":[210,230], "Current":[1,30], "Power":[0.5,10], "Frequency":[49,51],
+    "Flow Rate":[0,1], "Water Usage":[10,100], "Duration (Months)":[1,12], "Duration (Days)":[1,30],
+    "Temperature":[22,28], "Humidity":[40,60], "PM2.5":[5,25], "PM10":[10,50],
+    "CO2":[400,800], "TVOC":[0,1], "CH2O":[0,0.1]
+  };
+  const [min,max] = base[param] || [0,50];
+  return Array.from({length:pointsPerTrace}, ()=> +(Math.random()*(max-min)+min).toFixed(2));
+}
+
+// สร้าง traces 3D
+let data3D = [];
+floors.forEach(floor=>{
+  Object.keys(parameters).forEach(system=>{
+    parameters[system].forEach((param,i)=>{
+      const color = neonPalette[i % neonPalette.length];
+      data3D.push({
+        x: xAxisValues,
+        y: Array(pointsPerTrace).fill(floor),
+        z: generateData(param),
+        mode: 'lines',
+        type: 'scatter3d',
+        name: `${floor} - ${param} - ${system}`,
+        line: {width:3, color:color},
+        visible: true
+      });
+    });
+  });
+});
+
+// Layout 3D โปร่งใส
+const layout3D = {
+  paper_bgcolor:'rgba(0,0,0,0)',
+  plot_bgcolor:'rgba(0,0,0,0)',
+  showlegend:false,
+  scene:{
+    xaxis:{title:'Hour', gridcolor:'rgba(0,255,255,0.2)', backgroundcolor:'rgba(0,0,0,0)'},
+    yaxis:{title:'Floor', tickvals:[...Array(floors.length).keys()], ticktext:floors, gridcolor:'rgba(0,255,255,0.2)', backgroundcolor:'rgba(0,0,0,0)'},
+    zaxis:{title:'Value', gridcolor:'rgba(0,255,255,0.2)', backgroundcolor:'rgba(0,0,0,0)'},
+    camera:{eye:{x:1.25,y:1.5,z:1}}
+  },
+  margin:{l:0,r:0,b:0,t:0},
+  legend:{orientation:'h', x:0.5, xanchor:'center', y:-0.2, font:{color:'#0ff'}, bgcolor:'rgba(0,0,0,0)'}
+};
+
+Plotly.newPlot('dashboard3D', data3D, layout3D, {responsive:true, displayModeBar:true});
+
+// Legend toggle
+let legendVisible = false;
+document.getElementById('legendToggle3D').addEventListener('click', ()=>{
+  legendVisible = !legendVisible;
+  document.getElementById('legendToggle3D').innerText = legendVisible ? 'Hide Legend' : 'Show Legend';
+  Plotly.relayout('dashboard3D', {showlegend:legendVisible});
+});
+
+// Update paramSelect
+const systemSelect = document.getElementById('systemSelect3D');
+const paramSelect = document.getElementById('paramSelect3D');
+const floorSelect = document.getElementById('floorSelect3D');
+
+systemSelect.addEventListener('change', ()=>{
+  const sys = systemSelect.value;
+  paramSelect.innerHTML = '<option value="ALL">All Parameters</option>';
+  if(parameters[sys]) parameters[sys].forEach(p=> paramSelect.innerHTML += `<option value="${p}">${p}</option>`);
+  updateVisibility3D();
+});
+
+floorSelect.addEventListener('change', updateVisibility3D);
+paramSelect.addEventListener('change', updateVisibility3D);
+
+function updateVisibility3D(){
+  const selFloor = floorSelect.value;
+  const selSys = systemSelect.value;
+  const selParam = paramSelect.value;
+
+  data3D.forEach(trace=>{
+    const [floor,param,system] = trace.name.split(' - ');
+    trace.visible = (selFloor==='ALL'||floor===selFloor) &&
+                    (selSys==='ALL'||system===selSys) &&
+                    (selParam==='ALL'||param===selParam);
+  });
+
+  Plotly.react('dashboard3D', data3D, layout3D, {responsive:true, displayModeBar:true});
+}
+</script>
+
 
 </body>
 </html>
-
-
 
 
