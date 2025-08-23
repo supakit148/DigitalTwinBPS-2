@@ -402,7 +402,7 @@
     .scrolling-content {
       position: absolute;
       width: 100%;
-      animation: scroll-up-down-right 300s ease-in-out infinite;
+      animation: scroll-up-down-right 50s ease-in-out infinite;
     }
     
     .scrolling-content-left {
@@ -726,6 +726,39 @@
             </div>
           </div><br></br>
             <div id="radar" style="width:100%; height:300px;"></div>
+            
+          <h3>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 12h20M2 6h16M2 18h12"/>
+            </svg>
+            Holographic 4D Dashboard
+          </h3>
+        
+          <!-- Controls -->
+          <div class="controls" style="margin-bottom:12px;">
+            Floor:
+            <select id="floorSelect4D">
+              <option value="ALL">All Floors</option>
+              <option value="1st_Floor">1st Floor</option>
+              <option value="M_Floor">M Floor</option>
+              <option value="2nd_Floor">2nd Floor</option>
+              <option value="3rd_Floor">3rd Floor</option>
+              <option value="4th_Floor">4th Floor</option>
+              <option value="5th_Floor">5th Floor</option>
+            </select>
+        
+            Parameter:
+            <select id="paramSelect4D">
+              <option value="CO2">CO2</option>
+              <option value="Temperature">Temperature</option>
+              <option value="Humidity">Humidity</option>
+              <option value="PM2.5">PM2.5</option>
+            </select>
+          </div>
+        
+          <!-- Plotly 3D Container -->
+          <div id="dashboard4D" style="width:100%; height:400px; border-radius:12px;"></div>
+
       </div>
       <div class="card">
         <h3>
@@ -1779,8 +1812,97 @@ function updateVisibility3D(){
 }
 </script>
 
+<script>
+    const floors4D = ["1st_Floor","M_Floor","2nd_Floor","3rd_Floor","4th_Floor","5th_Floor"];
+    const hours4D = [...Array(24).keys()];
+    const params4D = ["CO2","Temperature","Humidity","PM2.5"];
+    const neonColors4D = ["#00FFFF","#7DF9FF","#8A2BE2","#FF00FF","#00FF7F","#FF1493","#1E90FF","#00CED1"];
+
+    function generate4DData(param){
+      const data=[];
+      floors4D.forEach((floor,fIndex)=>{
+        hours4D.forEach(hour=>{
+          const value = +(Math.random() * (param==="CO2"?40: param==="Temperature"?28: param==="Humidity"?60:25) + (param==="CO2"?400: param==="Temperature"?22: param==="Humidity"?40:5)).toFixed(1);
+          data.push({x:hour,y:fIndex,z:value,size:value/10+1,color:value,floor:floor,hour:hour,param:param});
+        });
+      });
+      return data;
+    }
+
+    let currentParam4D = "CO2";
+    let rawData4D = generate4DData(currentParam4D);
+
+    function createTrace4D(param){
+      const filtered = rawData4D.filter(d=>d.param===param);
+      return {
+        x: filtered.map(d=>d.x),
+        y: filtered.map(d=>d.y),
+        z: filtered.map(d=>d.z),
+        mode:'markers',
+        type:'scatter3d',
+        marker:{
+          size: filtered.map(d=>d.size),
+          color: filtered.map((d,i)=>neonColors4D[i%neonColors4D.length]),
+          opacity:0.8,
+          line:{width:2,color:'#0ff'},
+          colorbar:{title:param,tickfont:{color:'#0ff'}}
+        },
+        text: filtered.map(d=>`${d.floor} - Hour ${d.hour} - ${param}: ${d.z}`),
+        hoverinfo:'text'
+      };
+    }
+
+    const trace4D = createTrace4D(currentParam4D);
+
+    const layout4D = {
+      paper_bgcolor:'rgba(0,0,0,0)',
+      plot_bgcolor:'rgba(0,0,0,0)',
+      scene:{
+        xaxis:{title:'Hour', gridcolor:'rgba(0,255,255,0.2)'},
+        yaxis:{title:'Floor', tickvals:floors4D.map((_,i)=>i), ticktext:floors4D, gridcolor:'rgba(0,255,255,0.2)'},
+        zaxis:{title:'Value', gridcolor:'rgba(0,255,255,0.2)'},
+        camera:{eye:{x:1.5,y:2,z:1.5}}
+      },
+      margin:{l:0,r:0,b:0,t:0},
+      showlegend:false
+    };
+
+    Plotly.newPlot('dashboard4D',[trace4D],layout4D,{responsive:true,displayModeBar:true});
+
+    const paramSelect4D = document.getElementById('paramSelect4D');
+    const floorSelect4D = document.getElementById('floorSelect4D');
+
+    paramSelect4D.addEventListener('change', e=>{
+      currentParam4D = e.target.value;
+      rawData4D = generate4DData(currentParam4D);
+      Plotly.react('dashboard4D',[createTrace4D(currentParam4D)],layout4D,{responsive:true,displayModeBar:true});
+    });
+
+    floorSelect4D.addEventListener('change', e=>{
+      const floor = e.target.value;
+      let filteredData = rawData4D;
+      if(floor!=="ALL") filteredData = rawData4D.filter(d=>d.floor===floor);
+      Plotly.react('dashboard4D',[{
+        x: filteredData.map(d=>d.x),
+        y: filteredData.map(d=>d.y),
+        z: filteredData.map(d=>d.z),
+        mode:'markers',
+        type:'scatter3d',
+        marker:{
+          size: filteredData.map(d=>d.size),
+          color: filteredData.map((d,i)=>neonColors4D[i%neonColors4D.length]),
+          opacity:0.8,
+          line:{width:2,color:'#0ff'}
+        },
+        text: filteredData.map(d=>`${d.floor} - Hour ${d.hour} - ${d.param}: ${d.z}`),
+        hoverinfo:'text'
+      }],layout4D,{responsive:true,displayModeBar:true});
+    });
+  </script>
+
 
 </body>
 </html>
+
 
 
