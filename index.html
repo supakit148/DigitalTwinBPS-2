@@ -650,6 +650,8 @@
             3D Digital Twin Dashboard
           </h3>
           
+          <button onclick="openLogistics('3D_Digital')">3D Digital Twin</button>
+          
           <!-- Controls สำหรับเลือก Floor, System, Parameter -->
           <div class="controls" style="margin-bottom:12px;">
             <select id="floorSelect3D">
@@ -836,6 +838,12 @@
     <iframe src="https://supakit148.github.io/BUILDING-OVERVIEW/"
             style="width:100%; height:100%; border:none; border-radius: 16px;"></iframe>
     <button class="close-btn" onclick="closeLogistics('BUILDING_OVERVIEW')">❌</button>
+  </div>
+  
+  <div id="3D_Digital" class="glass-modal">
+    <iframe src="https://supakit148.github.io/3D-Graph-Digital-Twin/"
+            style="width:100%; height:100%; border:none; border-radius: 16px;"></iframe>
+    <button class="close-btn" onclick="closeLogistics('3D_Digital')">❌</button>
   </div>
 
   <div id="logisticsCenterModal" class="glass-modal">
@@ -1910,6 +1918,7 @@ function updateVisibility3D(){
 
 </body>
 </html>
+
 
 
 
