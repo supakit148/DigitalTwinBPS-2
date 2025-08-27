@@ -392,6 +392,56 @@
       cursor: pointer;
       z-index: 20;
     }
+    
+    /* === Frame ของโมดัลกล้อง === */
+    .glass-modal-cctv {
+      position: fixed;
+      top: 320px;
+      right: 320px;
+    
+      /* กรอบขนาดพอดีกับรูป */
+      display: inline-block;
+      width: auto;
+      height: auto;
+    
+      /* Glass effect */
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(12px) saturate(150%);
+      -webkit-backdrop-filter: blur(12px) saturate(150%);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    
+      /* ให้ขอบโค้งที่ container ไปเลย */
+      border-radius: 16px;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+    
+      /* ❌ ไม่ต้องมี padding ไม่งั้นกรอบใหญ่กว่ารูป */
+      padding: 0;     
+    
+      display: none;
+      z-index: 9999;
+      overflow: hidden;  /* ให้ภาพไม่ล้น */
+    }
+    
+    .glass-modal-cctv.active {
+      display: inline-block;
+    }
+    
+    .glass-modal-cctv img {
+      display: block;     /* ตัดช่องว่างใต้รูป */
+      width: 300px;       /* ✅ ล็อกที่ 300px */
+      height: auto;
+      border-radius: 0;   /* ใช้ border-radius จาก container แทน */
+    }
+
+    
+    /* ปุ่มปิดยังใช้ตำแหน่งเดิมได้ */
+    .glass-modal-cctv .close-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      z-index: 2;
+    }
+
 
     .scrolling-wrapper {
       position: relative;
@@ -835,6 +885,15 @@
     </div>
     </div>
   </div>
+  
+  
+    <div id="CCTV" class="glass-modal-cctv">
+      <img id="modalImg"
+           src=""
+           alt="ภาพจากกล้อง" />
+      <button class="close-btn" onclick="closeLogistics('CCTV')">❌</button>
+    </div>
+  
   
   <div id="BUILDING_OVERVIEW" class="glass-modal">
     <iframe src="https://supakit148.github.io/BUILDING-OVERVIEW/"
@@ -1302,6 +1361,12 @@
             if (row[0] && row[0].v === cameraId) {
               const text0 = row[1]?.v ?? 'ไม่พบข้อมูล';
               const img1 = row[2]?.v ?? 'ไม่พบข้อมูล';
+              
+            // ✅ อัปเดตรูปในโมดอลให้ตรงกับ img1
+            const modalImg = document.getElementById("modalImg");
+            if (modalImg && img1) {
+              modalImg.src = img1;
+            }
                 
               const text1 = row[3]?.v ?? 'ไม่พบข้อมูล';
               const text2 = row[4]?.v ?? 'ไม่พบข้อมูล';
@@ -1373,6 +1438,7 @@
               if (!err && annotation?.name) {
                 const CameraName = annotation.name;
                 document.getElementById('cameraNameBox').innerText = "Digital Building - " + CameraName;
+                openLogistics('CCTV');
                 getTextFromGoogleSheet(CameraName);
               }
             });
@@ -1383,6 +1449,18 @@
         console.error('❌ โหลด Sketchfab API ไม่ได้');
       }
     });
+  </script>
+  
+  <script>
+      function openLogistics(modalId) {
+        const modal = document.getElementById(modalId);
+        modal.classList.add("active");
+      }
+    
+      function closeLogistics(modalId) {
+        const modal = document.getElementById(modalId);
+        modal.classList.remove("active");
+      } 
   </script>
   
 <script>
@@ -1932,5 +2010,4 @@ function updateVisibility3D(){
 
 </body>
 </html>
-
 
