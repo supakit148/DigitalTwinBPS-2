@@ -396,7 +396,7 @@
     /* === Frame ของโมดัลกล้อง === */
     .glass-modal-cctv {
       position: fixed;
-      top: 320px;
+      top: 260px;
       right: 480px;
     
       /* กรอบขนาดพอดีกับรูป */
@@ -597,7 +597,6 @@
       <div class="card">
         <h3 id="cameraNameBox">Digital Building</h3>
         <div class="camera-image" id="infoBox">-</div>
-        <h3 id="infoBox1">-</h3>
         <button onclick="openLogistics('BUILDING_OVERVIEW')">BUILDING OVERVIEW</button>
       </div>
       
@@ -891,6 +890,7 @@
       <img id="modalImg"
            src=""
            alt="ภาพจากกล้อง" />
+      <h3 id="infoBox1">-</h3>
       <button class="close-btn" onclick="closeLogistics('CCTV')">❌</button>
     </div>
   
@@ -1438,7 +1438,11 @@
               if (!err && annotation?.name) {
                 const CameraName = annotation.name;
                 document.getElementById('cameraNameBox').innerText = "Digital Building - " + CameraName;
-                openLogistics('CCTV');
+                if(CameraName !== "BPS_HQ"){
+                    openLogistics('CCTV');
+                } else{
+                    closeLogistics('CCTV');
+                }
                 getTextFromGoogleSheet(CameraName);
               }
             });
@@ -2010,5 +2014,4 @@ function updateVisibility3D(){
 
 </body>
 </html>
-
 
