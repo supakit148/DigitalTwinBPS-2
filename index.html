@@ -14,6 +14,11 @@
       --radius: 14px;
       --text: #ffffff;
       --neon: 0 0 8px #0ff, 0 0 16px #0ff;
+      
+      --gap: 12px;
+      --card-w: clamp(180px, 20vw, 280px);
+      --ratio: 16/9;
+      --safe-bottom: calc(4vh + 36px); /* เว้นปุ่ม control Sketchfab *
     }
 
     html, body {
@@ -518,6 +523,86 @@
     #dashboard3D { width:100%; height:95vh; }
     #legendToggle { margin-left: auto; }
     
+      /* === 3D Model แบบเต็มจอ === */
+      #skfb-frame{
+        position:fixed; inset:0;
+        width:100vw; height:100vh; border:none;
+        filter: drop-shadow(0 0 20px #00eaff);
+        z-index: 1; /* อยู่ใต้ overlay ทั้งหมด */
+      }
+    
+      /* กล่องชื่อกล้อง overlay */
+      #cameraNameBox{
+        position:fixed; z-index:10000; pointer-events:none;
+        top:12px; left:12px; color:#00ffff; font-weight:700;
+        padding:8px 14px; border-radius:10px;
+        border:1px solid #00ffff; background:rgba(0,0,0,.55);
+        text-shadow:0 0 8px #00ffff88;
+      }
+    
+    .cctv-col-left, .cctv-col-right{
+      position: fixed;
+      bottom: var(--safe-bottom);
+      display: flex;
+      flex-direction: column;
+      gap: var(--gap);
+      z-index: 10000;
+      pointer-events: none; /* คลิกทะลุ ยกเว้นตัวการ์ด */
+    }
+    
+    .cctv-col-left { left: 340px; }
+    .cctv-col-right{ right: 300px; }
+    
+    .glass-card{
+      position: relative;
+      width: var(--card-w);
+      aspect-ratio: var(--ratio);
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 8px 22px rgba(0,0,0,.35);
+      pointer-events: auto;
+    }
+    
+    .glass-card img{
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    
+    .glass-card h3{
+      position: absolute;
+      top: 6px; right: 6px;
+      margin: 0; padding: 4px 8px;
+      background: rgba(0,0,0,.55);
+      color: #00fff3;
+      font: 700 12px/1 'Orbitron', sans-serif;
+      border-radius: 8px;
+    }
+    
+    .glass-card h32{
+      position: absolute;
+      bottom: 6px; left: 6px;
+      margin: 0; padding: 4px 8px;
+      background: rgba(0,0,0,.55);
+      color: #00fff3;
+      font: 700 12px/1 'Orbitron', sans-serif;
+      border-radius: 8px;
+    }
+    
+    /* Responsive */
+    @media (max-width: 1200px){
+      :root{ --card-w: clamp(160px, 28vw, 240px); }
+    }
+    @media (max-width: 768px){
+      .cctv-col-left, .cctv-col-right{
+        flex-direction: row; /* จอเล็ก → จัดเรียงเป็นแถวแทน */
+        bottom: var(--safe-bottom);
+        top: auto;
+      }
+    }
+    
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 </head>
@@ -525,6 +610,22 @@
   <div class="layout">
     <div class="background">
       <iframe id="skfb-frame" allow="autoplay; fullscreen; xr-spatial-tracking" allowfullscreen></iframe>
+    </div>
+
+    <!-- กล้องแนวตั้งฝั่งซ้าย -->
+    <div class="cctv-col-left">
+      <div id="CCTV1" class="glass-card"><h32 id="name1">-</h32><img id="modalImg1"><h3 id="datetime1">-</h3></div>
+      <div id="CCTV2" class="glass-card"><h32 id="name2">-</h32><img id="modalImg2"><h3 id="datetime2">-</h3></div>
+      <div id="CCTV3" class="glass-card"><h32 id="name3">-</h32><img id="modalImg3"><h3 id="datetime3">-</h3></div>
+      <div id="CCTV4" class="glass-card"><h32 id="name4">-</h32><img id="modalImg4"><h3 id="datetime4">-</h3></div>
+    </div>
+    
+    <!-- กล้องแนวตั้งฝั่งขวา -->
+    <div class="cctv-col-right">
+      <div id="CCTV5" class="glass-card"><h32 id="name5">-</h32><img id="modalImg5"><h3 id="datetime5">-</h3></div>
+      <div id="CCTV6" class="glass-card"><h32 id="name6">-</h32><img id="modalImg6"><h3 id="datetime6">-</h3></div>
+      <div id="CCTV7" class="glass-card"><h32 id="name7">-</h32><img id="modalImg7"><h3 id="datetime7">-</h3></div>
+      <div id="CCTV8" class="glass-card"><h32 id="name8">-</h32><img id="modalImg8"><h3 id="datetime8">-</h3></div>
     </div>
 
     <div class="top">
@@ -1349,8 +1450,8 @@
 
     function getTextFromGoogleSheet(cameraId) {
       const sheetID = "1pG8ldAgtHsOzlVxjITuBp2XCS77Sdk15fvmR-YU-MDg";
-      const sheetName = "Data";
-      const url = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
+      const sheetName = "Data_EachFloor";
+      const url = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
 
       fetch(url)
         .then(res => res.text())
@@ -1361,69 +1462,146 @@
           for (let i = 0; i < rows.length; i++) {
             const row = rows[i].c;
             if (row[0] && row[0].v === cameraId) {
-              const text0 = row[1]?.v ?? 'ไม่พบข้อมูล';
-              const img1 = row[2]?.v ?? 'ไม่พบข้อมูล';
+            
               
-            // ✅ อัปเดตรูปในโมดอลให้ตรงกับ img1
-            const modalImg = document.getElementById("modalImg");
-            if (modalImg && img1) {
-              modalImg.src = img1;
-            }
                 
-              const text1 = row[3]?.v ?? 'ไม่พบข้อมูล';
-              const text2 = row[4]?.v ?? 'ไม่พบข้อมูล';
-              const text3 = row[5]?.v ?? 'ไม่พบข้อมูล';
-              const text4 = row[6]?.v ?? 'ไม่พบข้อมูล';
+              // กล้อง 1
+              const img1  = row[2]?.v || '';
+              const text1 = row[1]?.v || 'ไม่พบข้อมูล';
+              const text1_2 = row[23]?.v || 'ไม่พบข้อมูล';
+              document.getElementById("name1").innerText = text1_2;
+              const modalImg1 = document.getElementById("modalImg1");
+              if (modalImg1 && img1) modalImg1.src = img1;
+              document.getElementById("datetime1").innerText = text1;
               
-                const text5 = row[7]?.v ?? 'ไม่พบข้อมูล';
-                const text6 = row[8]?.v ?? 'ไม่พบข้อมูล';
-                const text7 = row[9]?.v ?? 'ไม่พบข้อมูล';
-                const text8 = row[10]?.v ?? 'ไม่พบข้อมูล';
-                
-                const text9 = row[11]?.v ?? 'ไม่พบข้อมูล';
-                const text10 = row[12]?.v ?? 'ไม่พบข้อมูล';
-                const text11 = row[13]?.v ?? 'ไม่พบข้อมูล';
-                const text12 = row[14]?.v ?? 'ไม่พบข้อมูล';
-                
-                const text13 = row[15]?.v ?? 'ไม่พบข้อมูล';
-                const text14 = row[16]?.v ?? 'ไม่พบข้อมูล';
-                const text15 = row[17]?.v ?? 'ไม่พบข้อมูล';
-                const text16 = row[18]?.v ?? 'ไม่พบข้อมูล';
-                
-                const text17 = row[19]?.v ?? 'ไม่พบข้อมูล';
-                const text18 = row[20]?.v ?? 'ไม่พบข้อมูล';
-                const text19 = row[21]?.v ?? 'ไม่พบข้อมูล';
-                const text20 = row[22]?.v ?? 'ไม่พบข้อมูล';
-                
-              document.getElementById("infoBox").innerHTML = `<img src="${img1}" alt="ภาพจากกล้อง">`;
 
-              document.getElementById("infoBox1").innerHTML = text0;
-              document.getElementById("infoBox2").innerHTML = text1;
-              document.getElementById("infoBox3").innerHTML = text2;
-              document.getElementById("infoBox4").innerHTML = text3;
-              document.getElementById("infoBox5").innerHTML = text4;
+              // กล้อง 2 (ถัดแถว)
+              const row2  = rows[i+1]?.c || [];
+              const img2  = row2[2]?.v || '';
+              const text2 = row2[1]?.v || 'ไม่พบข้อมูล';
+              const text2_2 = row2[23]?.v || 'ไม่พบข้อมูล';
+              document.getElementById("name2").innerText = text2_2;
+              const modalImg2 = document.getElementById("modalImg2");
+              if (modalImg2 && img2) modalImg2.src = img2;
+              document.getElementById("datetime2").innerText = text2;
+              
+              
+              // กล้อง 3 (ถัดแถว)
+              const row3  = rows[i+2]?.c || [];
+              const img3  = row3[2]?.v || '';
+              const text3 = row3[1]?.v || 'ไม่พบข้อมูล';
+              const text3_2 = row3[23]?.v || 'ไม่พบข้อมูล';
+              document.getElementById("name3").innerText = text3_2;
+              const modalImg3 = document.getElementById("modalImg3");
+              if (modalImg3 && img3) modalImg3.src = img3;
+              document.getElementById("datetime3").innerText = text3;
+              
+              
+              // กล้อง 4 (ถัดแถว)
+              const row4  = rows[i+3]?.c || [];
+              const img4  = row4[2]?.v || '';
+              const text4 = row4[1]?.v || 'ไม่พบข้อมูล';
+              const text4_2 = row4[23]?.v || 'ไม่พบข้อมูล';
+              document.getElementById("name4").innerText = text4_2;
+              const modalImg4 = document.getElementById("modalImg4");
+              if (modalImg4 && img4) modalImg4.src = img4;
+              document.getElementById("datetime4").innerText = text4;
+              
+              
+              // กล้อง 5 (ถัดแถว)
+              const row5  = rows[i+4]?.c || [];
+              const img5  = row5[2]?.v || '';
+              const text5 = row5[1]?.v || 'ไม่พบข้อมูล';
+              const text5_2 = row5[23]?.v || 'ไม่พบข้อมูล';
+              document.getElementById("name5").innerText = text5_2;
+              const modalImg5 = document.getElementById("modalImg5");
+              if (modalImg5 && img5) modalImg5.src = img5;
+              document.getElementById("datetime5").innerText = text5;
+              
+
+              // กล้อง 6 (ถัดแถว)
+              const row6  = rows[i+5]?.c || [];
+              const img6  = row6[2]?.v || '';
+              const text6 = row6[1]?.v || 'ไม่พบข้อมูล';
+              const text6_2 = row6[23]?.v || 'ไม่พบข้อมูล';
+              document.getElementById("name6").innerText = text6_2;
+              const modalImg6 = document.getElementById("modalImg6");
+              if (modalImg6 && img6) modalImg6.src = img6;
+              document.getElementById("datetime6").innerText = text6;
+              
+              
+              // กล้อง 7 (ถัดแถว)
+              const row7  = rows[i+6]?.c || [];
+              const img7  = row7[2]?.v || '';
+              const text7 = row7[1]?.v || 'ไม่พบข้อมูล';
+              const text7_2 = row7[23]?.v || 'ไม่พบข้อมูล';
+              document.getElementById("name7").innerText = text7_2;
+              const modalImg7 = document.getElementById("modalImg7");
+              if (modalImg7 && img7) modalImg7.src = img7;
+              document.getElementById("datetime7").innerText = text7;
+              
+              
+              // กล้อง 8 (ถัดแถว)
+              const row8  = rows[i+7]?.c || [];
+              const img8  = row8[2]?.v || '';
+              const text8 = row8[1]?.v || 'ไม่พบข้อมูล';
+              const text8_2 = row8[23]?.v || 'ไม่พบข้อมูล';
+              document.getElementById("name8").innerText = text8_2;
+              const modalImg8 = document.getElementById("modalImg8");
+              if (modalImg8 && img8) modalImg8.src = img8;
+              document.getElementById("datetime8").innerText = text8;
+              
+                const para1 = row[3]?.v ?? 'ไม่พบข้อมูล';
+                const para2 = row[4]?.v ?? 'ไม่พบข้อมูล';
+                const para3 = row[5]?.v ?? 'ไม่พบข้อมูล';
+                const para4 = row[6]?.v ?? 'ไม่พบข้อมูล';
+                              
+                const para5 = row[7]?.v ?? 'ไม่พบข้อมูล';
+                const para6 = row[8]?.v ?? 'ไม่พบข้อมูล';
+                const para7 = row[9]?.v ?? 'ไม่พบข้อมูล';
+                const para8 = row[10]?.v ?? 'ไม่พบข้อมูล';
+                                
+                const para9 = row[11]?.v ?? 'ไม่พบข้อมูล';
+                const para10 = row[12]?.v ?? 'ไม่พบข้อมูล';
+                const para11 = row[13]?.v ?? 'ไม่พบข้อมูล';
+                const para12 = row[14]?.v ?? 'ไม่พบข้อมูล';
+                                
+                const para13 = row[15]?.v ?? 'ไม่พบข้อมูล';
+                const para14 = row[16]?.v ?? 'ไม่พบข้อมูล';
+                const para15 = row[17]?.v ?? 'ไม่พบข้อมูล';
+                const para16 = row[18]?.v ?? 'ไม่พบข้อมูล';
+                                
+                const para17 = row[19]?.v ?? 'ไม่พบข้อมูล';
+                const para18 = row[20]?.v ?? 'ไม่พบข้อมูล';
+                const para19 = row[21]?.v ?? 'ไม่พบข้อมูล';
+                const para20 = row[22]?.v ?? 'ไม่พบข้อมูล';
+                
+                document.getElementById("infoBox2").innerHTML = para1;
+                document.getElementById("infoBox3").innerHTML = para2;
+                document.getElementById("infoBox4").innerHTML = para3;
+                document.getElementById("infoBox5").innerHTML = para4;
+                             
+                document.getElementById("infoBox6").innerHTML  = formatCeil2(para5)  + "V";
+                document.getElementById("infoBox7").innerHTML  = formatCeil2(para6)  + "A";
+                document.getElementById("infoBox8").innerHTML  = formatCeil2(para7)  + "Hz";
+                document.getElementById("infoBox9").innerHTML  = formatCeil2(para8)  + "kW";
+                                
+                document.getElementById("infoBox10").innerHTML = formatCeil2(para9)  + "<br>L/min";
+                document.getElementById("infoBox11").innerHTML = formatCeil2(para10) + "<br>Days";
+                document.getElementById("infoBox12").innerHTML = formatCeil2(para11) + "<br>Months";
+                document.getElementById("infoBox13").innerHTML = formatCeil2(para12) + "<br>Liter";
+                                
+                document.getElementById("infoBox14").innerHTML = formatCeil2(para13) + "C";
+                document.getElementById("infoBox15").innerHTML = formatCeil2(para14) + "%RH";
+                document.getElementById("infoBox16").innerHTML = formatCeil2(para15) + "ug";
+                document.getElementById("infoBox17").innerHTML = formatCeil2(para16) + "ug";
+                                
+                document.getElementById("infoBox18").innerHTML = formatCeil2(para17) + "ug";
+                document.getElementById("infoBox19").innerHTML = formatCeil2(para18) + "ug";
+                document.getElementById("infoBox20").innerHTML = formatCeil2(para19) + "<br>ppm";
+                document.getElementById("infoBox21").innerHTML = formatCeil2(para20) + "<br>ppm";
              
-                
-                document.getElementById("infoBox6").innerHTML  = formatCeil2(text5)  + "V";
-                document.getElementById("infoBox7").innerHTML  = formatCeil2(text6)  + "A";
-                document.getElementById("infoBox8").innerHTML  = formatCeil2(text7)  + "Hz";
-                document.getElementById("infoBox9").innerHTML  = formatCeil2(text8)  + "kW";
-                
-                document.getElementById("infoBox10").innerHTML = formatCeil2(text9)  + "<br>L/min";
-                document.getElementById("infoBox11").innerHTML = formatCeil2(text10) + "<br>Days";
-                document.getElementById("infoBox12").innerHTML = formatCeil2(text11) + "<br>Months";
-                document.getElementById("infoBox13").innerHTML = formatCeil2(text12) + "<br>Liter";
-                
-                document.getElementById("infoBox14").innerHTML = formatCeil2(text13) + "C";
-                document.getElementById("infoBox15").innerHTML = formatCeil2(text14) + "%RH";
-                document.getElementById("infoBox16").innerHTML = formatCeil2(text15) + "ug";
-                document.getElementById("infoBox17").innerHTML = formatCeil2(text16) + "ug";
-                
-                document.getElementById("infoBox18").innerHTML = formatCeil2(text17) + "ug";
-                document.getElementById("infoBox19").innerHTML = formatCeil2(text18) + "ug";
-                document.getElementById("infoBox20").innerHTML = formatCeil2(text19) + "<br>ppm";
-                document.getElementById("infoBox21").innerHTML = formatCeil2(text20) + "<br>ppm";
-                          
+
               break;
             }
           }
@@ -1431,42 +1609,51 @@
         .catch(err => console.error("❌ Error loading Google Sheet:", err));
     }
 
-    client.init('7adcd28260174cf58dd2672e1e189426', {
-      success: function(api) {
+    client.init('7adcd28260174cf58dd2672e1e189426', { // ใส่ UID โมเดลของคุณ
+      success: function (api) {
         api.start();
-        api.addEventListener('viewerready', function() {
-          api.addEventListener('annotationFocus', function(index) {
-            api.getAnnotation(index, function(err, annotation) {
+        api.addEventListener('viewerready', function () {
+          api.addEventListener('annotationFocus', function (index) {
+            api.getAnnotation(index, function (err, annotation) {
               if (!err && annotation?.name) {
-                const CameraName = annotation.name;
-                document.getElementById('cameraNameBox').innerText = "Digital Building - " + CameraName;
-                if(CameraName !== "BPS_HQ"){
-                    openLogistics('CCTV');
-                } else{
-                    closeLogistics('CCTV');
-                }
+                CameraName = annotation.name;
+                document.getElementById('cameraNameBox').innerText = 'กล้อง ' + CameraName;
+                
                 getTextFromGoogleSheet(CameraName);
+                
+                // เรียกใช้งานตอนกด annotation
+                if (CameraName === "BPS_HQ") {
+                  hideAll();
+                } else {
+                  showAll();
+                }
+
+                // TODO: โหลดข้อมูลรูป/เวลา ตาม logic เดิมของคุณ
+                // getTextFromGoogleSheet(CameraName);
+
+                // ถ้าต้องการซ่อน/แสดงการ์ดเป็นรายตัวให้เรียก open/close ตามต้องการ
+                // openLogistics('CCTV1'); openLogistics('CCTV2'); ...
               }
             });
           });
         });
       },
-      error: function() {
-        console.error('❌ โหลด Sketchfab API ไม่ได้');
-      }
+      error: function () { console.error('❌ โหลด Sketchfab API ไม่ได้'); }
     });
   </script>
   
   <script>
-      function openLogistics(modalId) {
-        const modal = document.getElementById(modalId);
-        modal.classList.add("active");
-      }
-    
-      function closeLogistics(modalId) {
-        const modal = document.getElementById(modalId);
-        modal.classList.remove("active");
-      } 
+    // ===== ฟังก์ชันโชว์/ซ่อนการ์ดใน Dock (ถ้าต้องการใช้) =====
+    function openLogistics(id){ document.getElementById(id)?.classList.add('active'); }
+    function closeLogistics(id){ document.getElementById(id)?.classList.remove('active'); }
+
+    function setVisible(id, visible){
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.style.display = visible ? '' : 'none';
+    }
+    function showAll(){ for(let i=1;i<=8;i++) setVisible('CCTV'+i, true); }
+    function hideAll(){ for(let i=1;i<=8;i++) setVisible('CCTV'+i, false); }
   </script>
   
 <script>
@@ -2021,5 +2208,4 @@ function updateVisibility3D(){
 
 
 C
-
 
