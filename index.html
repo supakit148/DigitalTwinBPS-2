@@ -663,10 +663,10 @@
   font-size:18px; letter-spacing:2px;
   color:#cfefff; opacity:.85;
   align-self:flex-start;
-  position:relative; top:40px;
+  position:relative; top:20px;
 }
     .number {
-      font-size: 72px; font-weight: 900;
+      font-size: 66px; font-weight: 900;
       color: #00f6ff;
       text-shadow: 0 0 12px #00f6ff, 0 0 28px #9b4dff;
     }
@@ -791,7 +791,7 @@
       <div class="card">
         <h3></h3>
         <div class="floor-card">
-          <span class="label">FLOOR</span>
+          <span class="label" id="BuildorFloor"></span>
           <span class="number" id="NumberFloor">-</span>
         </div>
         <div class="camera-image"><img id="modalImg0"></div>
@@ -1727,8 +1727,10 @@
                 
                 // เรียกใช้งานตอนกด annotation
                 if (CameraName === "BPS_HQ") {
+                  document.getElementById('BuildorFloor').innerText = "BUILDING";
                   hideAll();
                 } else {
+                  document.getElementById('BuildorFloor').innerText = "FLOOR";
                   showAll();
                 }
 
