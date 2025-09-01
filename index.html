@@ -610,6 +610,27 @@
       margin-right: auto; /* 👉 จัดให้อยู่กึ่งกลาง */
     }
     
+    /* ✨ แถบนีออนด้านบนแบบ Gradient เคลื่อนไหว */
+    .floor-card::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 22px;
+      background: linear-gradient(270deg, #00f6ff, #9b4dff, #00f6ff);
+      background-size: 300% 100%;
+      animation: flow 6s ease-in-out infinite;
+      box-shadow: 0 0 12px #00f6ff, 0 0 20px #9b4dff;
+      border-top-left-radius: 12px;
+      border-top-right-radius: 12px;
+    }
+    
+    /* เอฟเฟกต์น้ำไหลนุ่มนวล */
+    @keyframes flow {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    
     .floor-card::after {
       content: "";
       position: absolute; inset: 0;
@@ -2246,4 +2267,3 @@ function updateVisibility3D(){
 
 
 C
-
