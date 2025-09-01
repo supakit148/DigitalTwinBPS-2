@@ -531,15 +531,6 @@
         z-index: 1; /* อยู่ใต้ overlay ทั้งหมด */
       }
     
-      /* กล่องชื่อกล้อง overlay */
-      #cameraNameBox{
-        position:fixed; z-index:10000; pointer-events:none;
-        top:12px; left:12px; color:#00ffff; font-weight:700;
-        padding:8px 14px; border-radius:10px;
-        border:1px solid #00ffff; background:rgba(0,0,0,.55);
-        text-shadow:0 0 8px #00ffff88;
-      }
-    
     .cctv-col-left, .cctv-col-right{
       position: fixed;
       bottom: var(--safe-bottom);
@@ -601,6 +592,41 @@
         bottom: var(--safe-bottom);
         top: auto;
       }
+    }
+    
+    .floor-card {
+      width: 240px; height: 120px;
+      background: #0b0f1a;
+      border-radius: 12px;
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: flex-end;
+      padding: 16px 24px;
+      box-shadow: 0 0 18px rgba(0,246,255,0.3);
+      position: relative;
+      overflow: hidden;
+    
+      margin-top: 20px;   /* 👉 ขยับ card ทั้งใบลง */
+      margin-left: auto;  /* 👉 ขยับไปทางขวา */
+      margin-right: auto; /* 👉 จัดให้อยู่กึ่งกลาง */
+    }
+    
+    .floor-card::after {
+      content: "";
+      position: absolute; inset: 0;
+      background: linear-gradient(120deg, rgba(0,246,255,.08), transparent 70%);
+    }
+    .label {
+      font-size: 16px; letter-spacing: 2px;
+      color: #7de9ff; opacity: 0.7;
+      align-self: flex-start;
+      position: relative;
+      top: 12px;  /* เลื่อนลงจากตำแหน่งเดิม */
+    }
+    
+    .number {
+      font-size: 72px; font-weight: 900;
+      color: #00f6ff;
+      text-shadow: 0 0 12px #00f6ff, 0 0 28px #9b4dff;
     }
     
   </style>
@@ -698,7 +724,13 @@
     <div class="left">
       <div class="card">
         <h3 id="cameraNameBox">Digital Building</h3>
-        <div class="camera-image" id="infoBox">-</div>
+        <div class="floor-card">
+          <span class="label">FLOOR</span>
+          <span class="number" id="NumberFloor">-</span>
+        </div>
+        
+        <div class="camera-image"><img id="modalImg0"></div>
+        
         <button onclick="openLogistics('BUILDING_OVERVIEW')">BUILDING OVERVIEW</button>
       </div>
       
@@ -1463,8 +1495,11 @@
             const row = rows[i].c;
             if (row[0] && row[0].v === cameraId) {
             
+              // กล้องตัวแทนชั้น
+              const img0  = row[2]?.v || '';
+              const modalImg0 = document.getElementById("modalImg0");
+              if (modalImg0 && img0) modalImg0.src = img0;
               
-                
               // กล้อง 1
               const img1  = row[2]?.v || '';
               const text1 = row[1]?.v || 'ไม่พบข้อมูล';
@@ -1576,6 +1611,8 @@
                 const para19 = row[21]?.v ?? 'ไม่พบข้อมูล';
                 const para20 = row[22]?.v ?? 'ไม่พบข้อมูล';
                 
+                const para21 = row[24]?.v ?? 'ไม่พบข้อมูล';
+                
                 document.getElementById("infoBox2").innerHTML = para1;
                 document.getElementById("infoBox3").innerHTML = para2;
                 document.getElementById("infoBox4").innerHTML = para3;
@@ -1601,6 +1638,7 @@
                 document.getElementById("infoBox20").innerHTML = formatCeil2(para19) + "<br>ppm";
                 document.getElementById("infoBox21").innerHTML = formatCeil2(para20) + "<br>ppm";
              
+                document.getElementById("NumberFloor").innerHTML = para21;
 
               break;
             }
@@ -1609,7 +1647,7 @@
         .catch(err => console.error("❌ Error loading Google Sheet:", err));
     }
 
-    client.init('7adcd28260174cf58dd2672e1e189426', { // ใส่ UID โมเดลของคุณ
+    client.init('8e55073d48d545bfaa6490ecb6050208', { // ใส่ UID โมเดลของคุณ
       success: function (api) {
         api.start();
         api.addEventListener('viewerready', function () {
@@ -1617,7 +1655,7 @@
             api.getAnnotation(index, function (err, annotation) {
               if (!err && annotation?.name) {
                 CameraName = annotation.name;
-                document.getElementById('cameraNameBox').innerText = 'กล้อง ' + CameraName;
+                document.getElementById('cameraNameBox').innerText = "Digital Building for " + CameraName;
                 
                 getTextFromGoogleSheet(CameraName);
                 
@@ -2208,4 +2246,3 @@ function updateVisibility3D(){
 
 
 C
-
