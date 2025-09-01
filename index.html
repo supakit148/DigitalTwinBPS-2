@@ -665,11 +665,14 @@
   align-self:flex-start;
   position:relative; top:20px;
 }
-    .number {
-      font-size: 66px; font-weight: 900;
-      color: #00f6ff;
-      text-shadow: 0 0 12px #00f6ff, 0 0 28px #9b4dff;
-    }
+.number {
+  font-size: 66px; font-weight: 900;
+  color: #00f6ff;
+  text-shadow: 0 0 12px #00f6ff, 0 0 28px #9b4dff;
+  display: inline-block;      /* เพื่อให้ translate ทำงานชัวร์ */
+  transform: translateY(18px); /* 👈 เลื่อนลง ~6px (ปรับค่าตามชอบ) */
+  /* หรือถ้าชอบแบบง่าย ๆ: margin-top: 6px; */
+}
 
 /* Hover focus effect */
 .floor-card:hover{
@@ -2324,3 +2327,4 @@ function updateVisibility3D(){
 
 </body>
 </html>
+
