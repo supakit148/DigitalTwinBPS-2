@@ -704,6 +704,7 @@
 
     <!-- กล้องแนวตั้งฝั่งซ้าย -->
     <div class="cctv-col-left">
+      <h3 id="cameraNameBox1"></h3>
       <div id="CCTV1" class="glass-card"><h32 id="name1">-</h32><img id="modalImg1"><h3 id="datetime1">-</h3></div>
       <div id="CCTV2" class="glass-card"><h32 id="name2">-</h32><img id="modalImg2"><h3 id="datetime2">-</h3></div>
       <div id="CCTV3" class="glass-card"><h32 id="name3">-</h32><img id="modalImg3"><h3 id="datetime3">-</h3></div>
@@ -712,6 +713,7 @@
     
     <!-- กล้องแนวตั้งฝั่งขวา -->
     <div class="cctv-col-right">
+      <h3 id="cameraNameBox2"></h3>
       <div id="CCTV5" class="glass-card"><h32 id="name5">-</h32><img id="modalImg5"><h3 id="datetime5">-</h3></div>
       <div id="CCTV6" class="glass-card"><h32 id="name6">-</h32><img id="modalImg6"><h3 id="datetime6">-</h3></div>
       <div id="CCTV7" class="glass-card"><h32 id="name7">-</h32><img id="modalImg7"><h3 id="datetime7">-</h3></div>
@@ -787,7 +789,7 @@
 
     <div class="left">
       <div class="card">
-        <h3 id="cameraNameBox">Digital Building</h3>
+        <h3></h3>
         <div class="floor-card">
           <span class="label">FLOOR</span>
           <span class="number" id="NumberFloor">-</span>
@@ -1718,7 +1720,8 @@
             api.getAnnotation(index, function (err, annotation) {
               if (!err && annotation?.name) {
                 CameraName = annotation.name;
-                document.getElementById('cameraNameBox').innerText = "Digital Building for " + CameraName;
+                document.getElementById('cameraNameBox1').innerText = "Digital Building - " + CameraName;
+                document.getElementById('cameraNameBox2').innerText = "Digital Building - " + CameraName;
                 
                 getTextFromGoogleSheet(CameraName);
                 
@@ -1753,8 +1756,14 @@
       if (!el) return;
       el.style.display = visible ? '' : 'none';
     }
-    function showAll(){ for(let i=1;i<=8;i++) setVisible('CCTV'+i, true); }
-    function hideAll(){ for(let i=1;i<=8;i++) setVisible('CCTV'+i, false); }
+    function showAll(){ 
+        for(let i=1;i<=8;i++) setVisible('CCTV'+i, true); 
+        for(let i=1;i<=2;i++) setVisible('cameraNameBox'+i, true); 
+    }
+    function hideAll(){ 
+        for(let i=1;i<=8;i++) setVisible('CCTV'+i, false); 
+        for(let i=1;i<=2;i++) setVisible('cameraNameBox'+i, false); 
+    }
   </script>
   
 <script>
@@ -2313,4 +2322,3 @@ function updateVisibility3D(){
 
 </body>
 </html>
-
