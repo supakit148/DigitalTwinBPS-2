@@ -695,6 +695,12 @@
   50%{transform: translateX(35%) rotate(0.001deg)}
 }
 
+.btn{
+  position: fixed; z-index: 10; bottom: 20px; left: 340px;
+  background: rgba(0,0,0,.5); color:#0ff; border:1px solid #0ff;
+  padding:8px 12px; border-radius:8px; cursor:pointer; font-family: sans-serif;
+}
+
     
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
@@ -702,8 +708,11 @@
 <body>
   <div class="layout">
     <div class="background">
+      <!-- ปุ่ม Back (เริ่มซ่อน) -->
+      <button class="btn" id="backBtn" title="Back to previous model" style="display:none">⟵ Back</button>
       <iframe id="skfb-frame" allow="autoplay; fullscreen; xr-spatial-tracking" allowfullscreen></iframe>
     </div>
+
 
     <!-- กล้องแนวตั้งฝั่งซ้าย -->
     <div class="cctv-col-left">
@@ -1539,9 +1548,6 @@
   </script>
 
   <script>
-    const iframe = document.getElementById('skfb-frame');
-    const client = new Sketchfab(iframe);
-    
     function formatCeil2(num) {
         const n = parseFloat(num);
         if (isNaN(n)) return num; // ถ้าไม่ใช่ตัวเลข คืนค่าเดิม
@@ -1714,41 +1720,100 @@
         })
         .catch(err => console.error("❌ Error loading Google Sheet:", err));
     }
+    
 
-    client.init('7adcd28260174cf58dd2672e1e189426', { // ใส่ UID โมเดลของคุณ
-      success: function (api) {
+  // === CONFIG: Mapping annotation name → model UID =========================
+  const MODEL_START = '7adcd28260174cf58dd2672e1e189426'; // โมเดลรวมเริ่มต้น
+  const ANNO_TO_MODEL = {
+    '1st_Floor' : '78c790b7e74843139138cac1d852f05d',
+    'M_Floor'   : '69350240005d4d43ae8800c5b7ab79d7',
+    '2nd_Floor' : 'fae2731cfddc4b9dab3f43bed1724857',
+    '3rd_Floor' : 'f5034d3514414c92aa4dc5d95c6513e7',
+    '4th_Floor' : '317cf905f70c4e6fbce4beee8206c446',
+    'Roof_Level': 'aeafd4ec7a1b49de83510bb3cf08bc7b'
+  };
+  // ========================================================================
+
+  const iframe  = document.getElementById('skfb-frame');
+  const backBtn = document.getElementById('backBtn');
+  const client  = new Sketchfab(iframe);
+
+  let activeUID   = null;
+  let apiRef      = null;
+  const historyStack = []; // เก็บประวัติ UID สำหรับ Back
+
+  // ใช้ฟังก์ชันเดิมของคุณ: formatCeil2(), getTextFromGoogleSheet() ฯลฯ
+
+  function initModel(uid){
+    if (activeUID && uid === activeUID) return;   // กันโหลดซ้ำตัวเดิม
+    if (activeUID) historyStack.push(activeUID);  // เก็บประวัติ
+    backBtn.style.display = historyStack.length ? 'inline-block' : 'none';
+
+    activeUID = uid;
+    client.init(uid, {
+      autostart: 1,
+      preload: 1,
+      ui_infos: 0,
+      ui_inspector: 0,
+      ui_stop: 0,
+      ui_watermark_link: 0,
+      success: function(api){
+        apiRef = api;
         api.start();
-        api.addEventListener('viewerready', function () {
-          api.addEventListener('annotationFocus', function (index) {
-            api.getAnnotation(index, function (err, annotation) {
-              if (!err && annotation?.name) {
-                CameraName = annotation.name;
-                document.getElementById('cameraNameBox1').innerText = "Digital Building - " + CameraName;
-                document.getElementById('cameraNameBox2').innerText = "Digital Building - " + CameraName;
-                
-                getTextFromGoogleSheet(CameraName);
-                
-                // เรียกใช้งานตอนกด annotation
-                if (CameraName === "BPS_HQ") {
-                  document.getElementById('BuildorFloor').innerText = "BUILDING";
-                  hideAll();
-                } else {
-                  document.getElementById('BuildorFloor').innerText = "FLOOR";
-                  showAll();
-                }
 
-                // TODO: โหลดข้อมูลรูป/เวลา ตาม logic เดิมของคุณ
-                // getTextFromGoogleSheet(CameraName);
+        api.addEventListener('viewerready', function(){
+          const handler = function(index){
+            api.getAnnotation(index, function(err, ann){
+              if (err || !ann) return;
 
-                // ถ้าต้องการซ่อน/แสดงการ์ดเป็นรายตัวให้เรียก open/close ตามต้องการ
-                // openLogistics('CCTV1'); openLogistics('CCTV2'); ...
+              // ---- พฤติกรรม "เดิม" ของคุณ: อัปเดตชื่อ/ข้อมูลจาก Google Sheet ----
+              const CameraName = (ann.name || ann.title || '').trim();
+              document.getElementById('cameraNameBox1').innerText = "Digital Building - " + CameraName;
+              document.getElementById('cameraNameBox2').innerText = "Digital Building - " + CameraName;
+
+              // โหลดข้อมูลแผ่น/การ์ด/ค่า metric ตามชื่อ CameraName (ฟังก์ชันเดิมของคุณ)
+              getTextFromGoogleSheet(CameraName);
+
+              // BUILDING vs FLOOR label + ซ่อน/โชว์การ์ด (ตรรกะเดิม)
+              if (CameraName === "BPS_HQ") {
+                document.getElementById('BuildorFloor').innerText = "BUILDING";
+                hideAll();
+              } else {
+                document.getElementById('BuildorFloor').innerText = "FLOOR";
+                showAll();
+              }
+              // --------------------------------------------------------------------
+
+              // ถ้ามี mapping ชื่อ annotation → โมเดล ให้สลับไปโมเดลนั้น
+              const targetUID = ANNO_TO_MODEL[CameraName];
+              if (targetUID && targetUID !== activeUID){
+                initModel(targetUID);
               }
             });
-          });
+          };
+          // รองรับทั้งสองอีเวนต์ของ Sketchfab
+          api.addEventListener('annotationFocus',  handler);
+          api.addEventListener('annotationSelect', handler);
         });
       },
-      error: function () { console.error('❌ โหลด Sketchfab API ไม่ได้'); }
+      error: function(){ console.error('Sketchfab init error:', uid); }
     });
+  }
+
+  // ปุ่มย้อนกลับแบบ history (ย้อนโมเดลที่เพิ่งมาก่อนหน้า)
+  backBtn.addEventListener('click', () => {
+    if (!historyStack.length) return;
+    const prev = historyStack.pop();
+    backBtn.style.display = historyStack.length ? 'inline-block' : 'none';
+    initModel(prev);
+  });
+
+  // เริ่มต้นที่โมเดลรวม
+  initModel(MODEL_START);
+
+
+
+
   </script>
   
   <script>
@@ -2327,4 +2392,3 @@ function updateVisibility3D(){
 
 </body>
 </html>
-
