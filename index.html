@@ -541,8 +541,14 @@
       pointer-events: none; /* คลิกทะลุ ยกเว้นตัวการ์ด */
     }
     
+    /* เพิ่มขนาดสำหรับกล้องกลาง */
+    .cctv-col-center .glass-card {
+      width: calc(var(--card-w) * 1.5); /* กล้องกลางใหญ่ขึ้น 1.5 เท่า */
+      aspect-ratio: var(--ratio);       /* ยังคงอัตราส่วนภาพเดิม */
+    }
+    
     .cctv-col-left { left: 340px; }
-    .cctv-col-center { top: 50%; left: 43%; }
+    .cctv-col-center { top: 50%; left: 50%; }
     .cctv-col-right{ right: 300px; }
     
     .glass-card{
