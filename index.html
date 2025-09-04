@@ -716,7 +716,7 @@
   <div class="layout">
     <div class="background">
       <!-- ปุ่ม Back (เริ่มซ่อน) -->
-      <button class="btn" id="backBtn" title="Back to previous model" style="display:none">⟵ Back</button>
+      <button class="btn" id="backBtn" title="Back to previous model" style="display:none">⟵ Back to Home</button>
       <iframe id="skfb-frame" allow="autoplay; fullscreen; xr-spatial-tracking" allowfullscreen></iframe>
     </div>
 
@@ -1821,6 +1821,7 @@
 
   // ปุ่มย้อนกลับแบบ history (ย้อนโมเดลที่เพิ่งมาก่อนหน้า)
   backBtn.addEventListener('click', () => {
+    hideAll();
     if (!historyStack.length) return;
     const prev = historyStack.pop();
     backBtn.style.display = historyStack.length ? 'inline-block' : 'none';
