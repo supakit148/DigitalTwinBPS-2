@@ -708,6 +708,67 @@
   padding:8px 12px; border-radius:8px; cursor:pointer; font-family: sans-serif;
 }
 
+/* ===== Floor Switcher (under clock) ===== */
+.floor-switcher{
+  position: absolute;
+  top: 1000px;                 /* อยู่ใต้ .ios-clock (ซึ่งอยู่ที่ top:68px) */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  width: min(92vw, 980px);
+  display: flex;
+  justify-content: center;
+  pointer-events: none;       /* ให้คลิกได้เฉพาะปุ่มด้านใน */
+}
+
+.chip-group{
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(12px) saturate(140%);
+  -webkit-backdrop-filter: blur(12px) saturate(140%);
+  border: 1px solid rgba(0,255,255,0.18);
+  border-radius: 999px;
+  padding: 8px 10px;
+  box-shadow: 0 10px 24px rgba(0,0,0,.35), 0 0 18px rgba(0,255,255,.08) inset;
+  pointer-events: auto;       /* เปิดคลิก */
+}
+
+/* ปุ่มแบบชิป (minimal) */
+.chip{
+  appearance: none;
+  border: 1px solid rgba(0,255,255,0.25);
+  background: rgba(255,255,255,0.06);
+  color: #dff;
+  font: 600 12px/1 'Orbitron', sans-serif;
+  letter-spacing: .4px;
+  padding: 9px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform .18s ease, box-shadow .18s ease, background .18s ease, border-color .18s ease, color .18s ease;
+  text-shadow: 0 0 6px rgba(0,255,255,.25);
+}
+
+.chip:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0,0,0,.35);
+  border-color: rgba(0,255,255,0.45);
+}
+
+.chip.active{
+  background: rgba(0,255,255,0.18);
+  color: #001316;
+  border-color: rgba(0,255,255,0.85);
+  box-shadow: 0 0 16px rgba(0,255,255,.35);
+}
+
+@media (max-width: 768px){
+  .floor-switcher{ top: 124px; width: 94vw; }
+  .chip{ font-size: 11px; padding: 8px 12px; }
+}
+
     
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
@@ -716,7 +777,12 @@
   <div class="layout">
     <div class="background">
       <!-- ปุ่ม Back (เริ่มซ่อน) -->
-      <button class="btn" id="backBtn" title="Back to previous model" style="display:none">⟵ Back to Home</button>
+      <button class="btn" id="backBtn" title="Back to previous model" style="display:none">⟵ Back</button>
+      
+      <!-- ✅ ปุ่ม Next + Home ใหม่ -->
+        <button class="btn" id="nextBtn" title="Next model" style="display:none; left: 420px;">Next ⟶</button>
+        <button class="btn" id="homeBtn" title="Go to start" style="display:none; left: 510px;">⌂ Home</button>
+        
       <iframe id="skfb-frame" allow="autoplay; fullscreen; xr-spatial-tracking" allowfullscreen></iframe>
     </div>
 
@@ -774,6 +840,12 @@
         <div class="date" id="date">--</div>
         <div class="clock"><span id="clock">--:--</span></div>
       </div>
+      
+      <!-- ✅ Floor switcher under clock -->
+        <div class="floor-switcher">
+          <div id="floorButtons" class="chip-group"></div>
+        </div>
+
 
       </div>
     </div>
@@ -2413,6 +2485,245 @@ function updateVisibility3D(){
       c.appendChild(s);
     });
   </script>
+  
+ <script>
+  // ✅ ปุ่มใหม่
+  const nextBtn = document.getElementById('nextBtn');
+  const homeBtn = document.getElementById('homeBtn');
+
+  // ✅ ลำดับ Next อ้างอิงตาม ANNO_TO_MODEL (รักษาลำดับการประกาศ)
+  const SEQ_UIDS = Object.values(ANNO_TO_MODEL);
+
+  // ✅ ธงเพื่อกันการ push ประวัติเมื่อกด Home
+  let suppressHistoryPush = false;
+
+  // ⚙️ แก้ initModel ให้คุมการ push ประวัติด้วยธง (แทนเดิมเพียงเล็กน้อย)
+  const _orig_initModel = initModel;
+  initModel = function(uid){
+    if (activeUID && uid === activeUID) return;
+    if (activeUID && !suppressHistoryPush) {
+      historyStack.push(activeUID);
+    }
+    backBtn.style.display = historyStack.length ? 'inline-block' : 'none';
+
+    activeUID = uid;
+    client.init(uid, {
+      autostart: 1,
+      preload: 1,
+      ui_infos: 0,
+      ui_inspector: 0,
+      ui_stop: 0,
+      ui_watermark_link: 0,
+      success: function(api){
+        apiRef = api;
+        api.start();
+
+        api.addEventListener('viewerready', function(){
+          const handler = function(index){
+            api.getAnnotation(index, function(err, ann){
+              if (err || !ann) return;
+              const CameraName = (ann.name || ann.title || '').trim();
+              document.getElementById('cameraNameBox1').innerText = "Digital Building - " + CameraName;
+              document.getElementById('cameraNameBox2').innerText = "Digital Building - " + CameraName;
+              getTextFromGoogleSheet(CameraName);
+
+              if (CameraName === "BPS_HQ") { document.getElementById('BuildorFloor').innerText = "BUILDING"; hideAll(); }
+              else { document.getElementById('BuildorFloor').innerText = "FLOOR"; showAll(); }
+
+              const targetUID = ANNO_TO_MODEL[CameraName];
+              if (targetUID && targetUID !== activeUID){
+                initModel(targetUID);
+                hideCenterCCTV();
+              }
+            });
+          };
+          api.addEventListener('annotationFocus',  handler);
+          api.addEventListener('annotationSelect', handler);
+        });
+      },
+      error: function(){ console.error('Sketchfab init error:', uid); }
+    });
+
+    // ✅ แสดงปุ่ม Next/Home เสมอเมื่อมีการ init
+    nextBtn.style.display = 'inline-block';
+    homeBtn.style.display = 'inline-block';
+  };
+
+  // ▶ ปุ่ม Next: เลื่อนไปโมเดลถัดไปตามลำดับใน SEQ_UIDS
+  nextBtn.addEventListener('click', () => {
+    // ถ้าอยู่ที่ MODEL_START หรือ UID ไม่อยู่ในลิสต์ → ไปตัวแรกของลำดับ
+    const curIdx = SEQ_UIDS.indexOf(activeUID);
+    const nextUID = (curIdx >= 0) ? SEQ_UIDS[(curIdx + 1) % SEQ_UIDS.length] : SEQ_UIDS[0];
+    hideAll();
+    initModel(nextUID);
+  });
+
+  // ⌂ ปุ่ม Home: กลับไป MODEL_START แบบรีเซ็ตสแต็ค Back
+  homeBtn.addEventListener('click', () => {
+    hideAll();
+    // ล้างประวัติ + กันไม่ให้ push current ลงสแต็คตอนกลับบ้าน
+    historyStack.length = 0;
+    suppressHistoryPush = true;
+    initModel(MODEL_START);
+    suppressHistoryPush = false;
+    backBtn.style.display = 'none';
+  });
+</script>
+
+<script>
+  // === ปุ่มเลือกชั้น (รวม Home) =======================================
+  const floorButtonsContainerId = 'floorButtons';
+
+  // ป้ายชื่อสวย ๆ สำหรับปุ่มแต่ละชั้น
+  const LABELS = {
+    'HOME':        'BPS',
+    '1st_Floor':   '1F',
+    'M_Floor':     'M',
+    '2nd_Floor':   '2F',
+    '3rd_Floor':   '3F',
+    '4th_Floor':   '4F',
+    'Roof_Level':  '5F'
+  };
+
+  // สร้าง spec ของปุ่ม: Home + แต่ละชั้นตาม ANNO_TO_MODEL (ลำดับอิงการประกาศ)
+  const FLOOR_BTNS = [
+    { key: 'HOME', uid: MODEL_START, label: LABELS['HOME'] },
+    ...Object.entries(ANNO_TO_MODEL).map(([k, uid]) => ({
+      key: k, uid, label: LABELS[k] || k.replace(/_/g,' ')
+    }))
+  ];
+
+  // กัน push ประวัติตอนกลับ Home (ถ้ามีธงจากโค้ดเดิมจะใช้ด้วย)
+  let _localSuppress = false;
+
+  function renderFloorButtons(){
+    const container = document.getElementById(floorButtonsContainerId);
+    if (!container) return;
+
+    container.innerHTML = '';
+    FLOOR_BTNS.forEach(spec => {
+      const btn = document.createElement('button');
+      btn.textContent = spec.label;
+      btn.dataset.uid = spec.uid;
+      btn.title = `Go to ${spec.label}`;
+      btn.addEventListener('click', () => {
+        if (spec.uid === MODEL_START) {
+          // กลับ Home: เคลียร์สแต็ค Back และไม่ push ประวัติปัจจุบัน
+          try { if (typeof historyStack !== 'undefined') historyStack.length = 0; } catch(e){}
+          try { if (typeof backBtn !== 'undefined' && backBtn) backBtn.style.display = 'none'; } catch(e){}
+          // ใช้ธง suppress ของระบบเดิมถ้ามี ไม่งั้นใช้โลคอล
+          const hasGlobalSuppress = (typeof suppressHistoryPush !== 'undefined');
+          if (hasGlobalSuppress) suppressHistoryPush = true; else _localSuppress = true;
+          initModel(MODEL_START);
+          if (hasGlobalSuppress) suppressHistoryPush = false; else _localSuppress = false;
+        } else {
+          initModel(spec.uid);
+        }
+      });
+      container.appendChild(btn);
+    });
+  }
+
+  // ไฮไลต์ปุ่มของโมเดลที่กำลังเปิดอยู่
+  function highlightFloor(uid){
+    const selector = `#${floorButtonsContainerId} button`;
+    document.querySelectorAll(selector).forEach(b => {
+      b.classList.toggle('highlight', b.dataset.uid === uid);
+    });
+  }
+
+  // --- ผูกเข้ากับ initModel เดิมให้ไฮไลต์อัปเดตอัตโนมัติ ---
+  // ถ้าอยากแทรกแบบไม่แก้ initModel มาก ให้สอดบรรทัด highlight ไว้ตอนท้ายของ initModel ด้วยก็ได้
+  // แต่ถ้าไม่สะดวกแก้ในนั้น เราจะ hook แบบนี้:
+  (function patchInitHighlight(){
+    const _init = initModel;
+    window.initModel = function(uid){
+      // ถ้าเราใช้ suppress ชั่วคราวเอง ให้เลียนแบบ suppressHistoryPush = true
+      if (_localSuppress && typeof suppressHistoryPush === 'undefined') {
+        // ดักไว้เฉย ๆ ไม่ต้องทำอะไร เพราะเราเคลียร์ stack ไปก่อนแล้ว
+      }
+      const ret = _init(uid);
+      // หลังสลับโมเดลแล้ว ให้ไฮไลต์ปุ่ม
+      try { highlightFloor(uid); } catch(e){}
+      return ret;
+    };
+  })();
+
+  // เรียกครั้งแรก
+  renderFloorButtons();
+  // ไฮไลต์ Home ตอนเริ่ม
+  highlightFloor(MODEL_START);
+</script>
+
+<script>
+  // === Floor buttons (Home + Floors) =================================
+  const LABELS = {
+    'HOME':        'BPS',
+    '1st_Floor':   '1F',
+    'M_Floor':     'M',
+    '2nd_Floor':   '2F',
+    '3rd_Floor':   '3F',
+    '4th_Floor':   '4F',
+    'Roof_Level':  '5F'
+  };
+
+  const FLOOR_BTNS = [
+    { key: 'HOME', uid: MODEL_START, label: LABELS['HOME'] },
+    ...Object.entries(ANNO_TO_MODEL).map(([k, uid]) => ({
+      key: k, uid, label: LABELS[k] || k.replace(/_/g,' ')
+    }))
+  ];
+
+  function renderFloorButtons(){
+    const container = document.getElementById('floorButtons');
+    if (!container) return;
+    container.innerHTML = '';
+    FLOOR_BTNS.forEach(spec => {
+      const b = document.createElement('button');
+      b.className = 'chip';
+      b.textContent = spec.label;
+      b.dataset.uid = spec.uid;
+      b.title = `Go to ${spec.label}`;
+      b.addEventListener('click', () => {
+        if (spec.uid === MODEL_START){
+          // กลับบ้านแบบเคลียร์สแต็ค
+          if (typeof historyStack !== 'undefined') historyStack.length = 0;
+          if (typeof backBtn !== 'undefined' && backBtn) backBtn.style.display = 'none';
+          if (typeof suppressHistoryPush !== 'undefined'){ suppressHistoryPush = true; }
+          hideAll();             // ซ่อนการ์ดก่อน
+          initModel(MODEL_START);
+          if (typeof suppressHistoryPush !== 'undefined'){ suppressHistoryPush = false; }
+        } else {
+          hideAll();             // ซ่อนการ์ดก่อนเข้าโมเดลใหม่ทุกครั้ง
+          initModel(spec.uid);
+        }
+      });
+      container.appendChild(b);
+    });
+  }
+
+  function highlightFloor(uid){
+    document.querySelectorAll('#floorButtons .chip').forEach(ch => {
+      ch.classList.toggle('active', ch.dataset.uid === uid);
+    });
+  }
+
+  // hook ให้ไฮไลต์อัปเดตทุกครั้งที่เปลี่ยนโมเดล
+  (function patchInitForHighlight(){
+    const _init = initModel;
+    window.initModel = function(uid){
+      const r = _init(uid);
+      try { highlightFloor(uid); } catch(e){}
+      return r;
+    };
+  })();
+
+  // เรียกครั้งแรก
+  renderFloorButtons();
+  highlightFloor(MODEL_START);
+</script>
+
+
 
 
 </body>
