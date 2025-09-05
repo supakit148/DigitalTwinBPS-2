@@ -828,6 +828,28 @@
   }
   #cctvMap .pin:hover .tip{ opacity:1; transform: translateY(0); }
 
+/* === Transparent Map Mode (พื้นใส) ===================== */
+.camera-image { background: transparent !important; }
+
+#cctvMap{
+  background: transparent !important;   /* ตัด gradient + grid เดิมออก */
+  box-shadow: none !important;          /* เอาเงากรอบออก (ถ้าไม่ต้องการ) */
+}
+
+#cctvMap::before,
+#cctvMap::after { content: none !important; }
+
+#cctvMap .map{
+  background-color: transparent !important;
+  /* ใช้ 'contain' ถ้าอยากเห็นภาพทั้งใบแบบไม่ถูกครอป */
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-size: contain !important;  /* หรือใช้ cover ถ้าอยากให้เต็มกรอบ */
+  opacity: 1 !important;                /* เอาความโปร่งออกให้คมชัด */
+  /* เอฟเฟกต์ที่ทำให้ขุ่น/เรืองมากไป สามารถปิดได้ */
+  filter: none !important;
+}
+
     
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
