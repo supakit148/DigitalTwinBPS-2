@@ -764,6 +764,70 @@
   .chip{ font-size: 11px; padding: 8px 12px; }
 }
 
+  /* === CCTV MAP WIDGET ===== */
+  #cctvMap{
+    position:relative;
+    width:100%;
+    aspect-ratio: 1302 / 768;           /* ปรับตามอัตราส่วนรูปแปลน */
+    border-radius:12px; overflow:hidden;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.05), transparent),
+      linear-gradient(0deg, rgba(255,255,255,.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px),
+      #000;
+    background-size:100% 100%, 32px 32px, 32px 32px, cover;
+    box-shadow: 0 0 18px rgba(0,255,255,.25);
+  }
+  #cctvMap .map{
+    position:absolute; inset:0;
+    background:center/cover no-repeat;
+    filter: drop-shadow(0 0 8px rgba(56,189,248,.25)) drop-shadow(0 0 18px rgba(139,92,246,.18));
+    opacity:.95;
+  }
+  #cctvMap .layer{ position:absolute; inset:0; }
+
+  /* จุดกล้อง */
+  #cctvMap .cam{
+    position:absolute; translate:-50% -50%;
+    width:18px; height:18px; border-radius:50%;
+    display:grid; place-items:center; cursor:pointer;
+    filter: drop-shadow(0 0 6px rgba(56,189,248,.8)) drop-shadow(0 0 14px rgba(139,92,246,.6));
+    transition: transform .15s ease, filter .15s ease;
+  }
+  #cctvMap .cam::before{
+    content:""; width:10px; height:10px; border-radius:50%;
+    background:#22D3EE; /* ฟ้านีออน */
+    box-shadow:0 0 8px currentColor, 0 0 16px currentColor;
+  }
+  /* กำลังมองภาพอยู่ */
+  #cctvMap .cam.active{ filter: drop-shadow(0 0 10px rgba(255,73,255,.9)) drop-shadow(0 0 22px rgba(255,73,255,.7)); }
+  #cctvMap .cam.active::before{ background:#FF49FF; }
+  #cctvMap .cam.active::after{
+    content:""; position:absolute; width:10px; height:10px; border-radius:50%;
+    border:2px solid #FF49FF; opacity:.85; animation:cctvPulse 1.6s ease-out infinite;
+  }
+  @keyframes cctvPulse{ from{transform:scale(1);opacity:.9} to{transform:scale(3.2);opacity:0} }
+
+  /* Coverage (ถ้าอยากโชว์) */
+  #cctvMap .coverage{
+    position:absolute; translate:-50% -50%;
+    width:140px; height:140px; border-radius:50%; pointer-events:none;
+    background: radial-gradient(60% 60% at 50% 50%, rgba(255,255,255,.12), transparent 70%),
+                rgba(56,189,248,.18);
+    mix-blend-mode: screen;
+  }
+
+  /* Tooltip */
+  #cctvMap .tip{
+    position:absolute; translate:-50% calc(-100% - 12px);
+    background: rgba(10,14,22,.78); color:#E5F4FF;
+    border:1px solid rgba(148,163,184,.25);
+    padding:6px 8px; border-radius:8px; font-size:12px; white-space:nowrap;
+    opacity:0; transform: translateY(6px); transition:.12s ease; pointer-events:none;
+    backdrop-filter: blur(6px);
+  }
+  #cctvMap .pin:hover .tip{ opacity:1; transform: translateY(0); }
+
     
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
@@ -879,7 +943,11 @@
           <span class="label" id="BuildorFloor"></span>
           <span class="number" id="NumberFloor">-</span>
         </div>
-        <div class="camera-image"><img id="modalImg0"></div>
+        <div class="camera-image">
+          <!-- แผนที่กล้องแบบล้ำสมัยจะแสดงตรงนี้ -->
+          <div id="cctvMap"></div>
+        </div>
+
         
         <button onclick="openLogistics('BUILDING_OVERVIEW')">BUILDING OVERVIEW</button>
       </div>
@@ -1643,7 +1711,7 @@
             if (row[0] && row[0].v === cameraId) {
             
               // กล้องตัวแทนชั้น
-              const img0  = row[2]?.v || '';
+              const img0  = row[25]?.v || '';
               const modalImg0 = document.getElementById("modalImg0");
               if (modalImg0 && img0) modalImg0.src = img0;
               
@@ -1844,6 +1912,7 @@
 
               // ---- พฤติกรรม "เดิม" ของคุณ: อัปเดตชื่อ/ข้อมูลจาก Google Sheet ----
               const CameraName = (ann.name || ann.title || '').trim();
+              renderFloorMapFromSheet(CameraName, /* activeName */ CameraName);
               document.getElementById('cameraNameBox1').innerText = "Digital Building - " + CameraName;
               document.getElementById('cameraNameBox2').innerText = "Digital Building - " + CameraName;
 
@@ -2612,6 +2681,124 @@ function updateVisibility3D(){
   // เรียกครั้งแรก
   renderFloorButtons();
   highlightFloor(MODEL_START);
+</script>
+
+
+<script>
+/* ================= CCTV MAP WIDGET ==================== */
+/* API: 
+   - renderCCTVMap({mapUrl, cameras})
+   - setActiveCamera(id)
+   - clearCCTVMap()
+   cameras = [{ id, x, y, active, label?, ip?, ch?, cov? }]
+*/
+(function(){
+  const el = document.getElementById('cctvMap');
+  if(!el) return;
+
+  const mapEl   = document.createElement('div'); mapEl.className = 'map';
+  const layerEl = document.createElement('div'); layerEl.className = 'layer';
+  el.appendChild(mapEl); el.appendChild(layerEl);
+
+  function clearCCTVMap(){ layerEl.innerHTML=''; }
+  function setMap(url){ mapEl.style.backgroundImage = `url('${url}')`; }
+
+  function createPin(c){
+    const wrap = document.createElement('div');
+    wrap.className = 'pin';
+    wrap.style.position='absolute';
+    wrap.style.left = c.x + '%';
+    wrap.style.top  = c.y + '%';
+
+    // coverage (ถ้าอยากซ่อน: คอมเมนต์บรรทัดนี้)
+    const cov = document.createElement('div');
+    cov.className = 'coverage'; 
+    if(c.cov) { cov.style.width = cov.style.height = c.cov+'px'; }
+    wrap.appendChild(cov);
+
+    const cam = document.createElement('div');
+    cam.className = 'cam' + (c.active ? ' active':'');
+    cam.dataset.id = c.id || '';
+    wrap.appendChild(cam);
+
+    const tip = document.createElement('div');
+    tip.className = 'tip';
+    tip.innerHTML = (c.label || c.id || '') + (c.ch ? ` • ${c.ch}` : '') + (c.ip ? `<div style="opacity:.8">IP: ${c.ip}</div>`:'');
+    wrap.appendChild(tip);
+
+    return wrap;
+  }
+
+  function renderCCTVMap({mapUrl, cameras}){
+    setMap(mapUrl || '');
+    clearCCTVMap();
+    (cameras || []).forEach(c => layerEl.appendChild(createPin(c)));
+  }
+
+  function setActiveCamera(id){
+    layerEl.querySelectorAll('.cam').forEach(dot=>{
+      dot.classList.toggle('active', dot.dataset.id === String(id));
+    });
+  }
+
+  // expose
+  window.CCTVMapWidget = { renderCCTVMap, setActiveCamera, clearCCTVMap };
+})();
+</script>
+
+<script>
+/* === ดึงกล้องจากชีตตามชั้น แล้ววาดลง #cctvMap ===================
+   สมมติคอลัมน์:
+   0 = Floor/Key, 2 = ImageURL(ตัวอย่าง), 23 = CameraName, 
+   25 = FloorMapURL, 26 = x(%), 27 = y(%)
+===================================================================== */
+function renderFloorMapFromSheet(floorKey, activeName){
+  const sheetID   = "1pG8ldAgtHsOzlVxjITuBp2XCS77Sdk15fvmR-YU-MDg";
+  const sheetName = "Data_EachFloor";
+  const url = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
+
+  fetch(url)
+    .then(r => r.text())
+    .then(t => {
+      const data = JSON.parse(t.substr(47).slice(0,-2));
+      const rows = data.table.rows;
+
+      // เลือกเฉพาะแถวที่คอลัมน์ 0 == floorKey
+      const sameFloor = rows
+        .map(r => r.c)
+        .filter(c => (c[0] && c[0].v === floorKey));
+
+      if(sameFloor.length === 0){
+        // เคลียร์แผนที่ถ้าไม่มีข้อมูล
+        window.CCTVMapWidget?.clearCCTVMap?.();
+        return;
+      }
+
+      // รูปแปลนของชั้น (เอาจากแถวแรกคอลัมน์ 25 ถ้ามี)
+      const mapUrl = sameFloor[0][25]?.v || "";
+
+      // สร้างกล้องจากคอลัมน์ 26,27 (x,y), 23 (label), 2 (img ของกล้อง), etc.
+      const cameras = sameFloor.map(c => {
+        const idOrLabel = (c[23]?.v || '').trim();   // ชื่อกล้อง
+        const x = parseFloat(c[26]?.v);              // %
+        const y = parseFloat(c[27]?.v);              // %
+        return {
+          id: idOrLabel || (c[0]?.v || ''),          // ใช้ชื่อกล้องเป็น id
+          label: idOrLabel,
+          x: Number.isFinite(x) ? x : 0,
+          y: Number.isFinite(y) ? y : 0,
+          active: (idOrLabel && activeName && idOrLabel.toLowerCase() === String(activeName).toLowerCase()),
+          ch: c[1]?.v || "",                         // หากต้องการโชว์เวลา/หมายเหตุ
+          ip: c[22]?.v || "",                        // *ปรับได้ตามชีตจริงถ้ามี IP
+          cov: 140                                   // ปรับขนาด coverage ได้
+        };
+      });
+
+      // วาดลงวิดเจ็ต
+      window.CCTVMapWidget?.renderCCTVMap({ mapUrl, cameras });
+    })
+    .catch(err => console.error('CCTV Map load error:', err));
+}
 </script>
 
 
