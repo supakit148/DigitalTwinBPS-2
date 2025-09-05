@@ -770,27 +770,42 @@
   .floor-switcher .layer{ width:220px; height:136px; }
 }
 
-/* === Place floor switcher bottom-center === */
+/* ==== Floor switcher: ISO (ซ้าย) + chips (ขวา) ==== */
 .floor-switcher{
-  position: fixed;          /* ลอยทับหน้า */
+  position: fixed;
   left: 50%;
-  top: 800%;
-  bottom: var(--safe-bottom);  /* เลี่ยงชนแถวกล้องล่าง ถ้าจะชิดมากขึ้นปรับเป็น 16px ก็ได้ */
   transform: translateX(-50%);
+  top: 1200%;                 /* ปรับตรงนี้ให้ทั้งกล่องอยู่ใต้ clock */
   width: min(92vw, 980px);
-  z-index: 10002;           /* อยู่เหนือ iframe/พื้นหลังแน่ ๆ */
-  pointer-events: none;     /* ให้คลิกได้เฉพาะของด้านใน */
+  z-index: 10002;
+
+  display: flex;              /* flex-row */
+  align-items: center;        /* ✅ จัดกลางแนวดิ่งให้ iso + chips อยู่ระดับเดียวกัน */
+  justify-content: center;
+  gap: 16px;
+
+  pointer-events: none;
 }
 
-/* ปุ่มข้างในต้องคลิกได้ */
-.floor-switcher .chips{ pointer-events: auto; }
+/* กล่อง isometric stack ด้านซ้าย */
+.floor-switcher .iso{
+  flex: 0 0 auto;
+  height: 260px;
+  width: clamp(320px, 42vw, 520px);
+  display: flex;
+  align-items: center;   /* ✅ จัดให้เนื้อหาภายใน iso อยู่กึ่งกลางแนวดิ่ง */
+  pointer-events: auto;
+}
 
-/* ถ้าต้องการให้เห็นเฉพาะปุ่ม ไม่แสดงกอง isometric ให้เปิดบรรทัดนี้ */
-/* .floor-switcher .iso{ display:none; } */
-
-/* มือถือ: ให้ชิดขอบล่างขึ้นอีกหน่อย */
-@media (max-width: 768px){
-  .floor-switcher{ bottom: 16px; }
+/* ปุ่มเลือกชั้นด้านขวา */
+.floor-switcher .chips{
+  flex: 1 1 auto;
+  display: flex;
+  flex-wrap: nowrap;     /* ปุ่มเรียงเป็นแถวเดียว */
+  gap: 10px;
+  justify-content: flex-start;
+  align-items: center;   /* ✅ ให้อยู่กึ่งกลางแนวดิ่ง */กิน */
+  pointer-events: auto;
 }
 
 
@@ -2784,7 +2799,6 @@ function updateVisibility3D(){
 
 </body>
 </html>
-
 
 
 
