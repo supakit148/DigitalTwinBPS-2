@@ -18,7 +18,6 @@
       --gap: 12px;
       --card-w: clamp(180px, 20vw, 280px);
       --ratio: 16/9;
-      --safe-bottom: calc(4vh + 36px); /* เว้นปุ่ม control Sketchfab *
     }
 
     html, body {
@@ -704,65 +703,95 @@
 
 
 /* ===== Floor Switcher (under clock) ===== */
+/* ===== Isometric Floor Switcher (scoped เฉพาะใน .floor-switcher) ===== */
+.floor-switcher{ pointer-events:none; display:grid; place-items:center; width:min(92vw,980px); margin:0 auto; }
+.floor-switcher .iso{ position:relative; height:300px; width:min(92vw,740px); perspective:1200px; user-select:none; pointer-events:auto; }
+.floor-switcher .stack{ position:relative; transform: rotateX(58deg) rotateZ(-32deg) translateY(-12px); transform-style:preserve-3d; }
+
+.floor-switcher .layer{
+  --z:0;
+  position:absolute; left:0; top:0;
+  width:260px; height:160px; border-radius:18px;
+  background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.06)), rgba(255,255,255,.05);
+  border:1px solid rgba(0,255,255,.38);
+  box-shadow: 0 28px 44px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.32);
+  transform: translate3d(calc(var(--z)*6px), calc(var(--z)*-18px), calc(var(--z)*34px));
+  transition: transform .45s cubic-bezier(.2,.8,.2,1), box-shadow .35s, border-color .35s, filter .35s, opacity .35s;
+  display:grid; place-items:center; overflow:hidden;
+}
+.floor-switcher .layer::before{
+  content:""; position:absolute; inset:-1px; border-radius:inherit; pointer-events:none;
+  background: linear-gradient(140deg, rgba(0,255,255,.55), rgba(0,255,255,0) 30%, rgba(154,77,255,.45));
+  mix-blend-mode:screen; opacity:.25; transition:opacity .3s ease;
+}
+.floor-switcher .layer::after{
+  content:attr(data-label); position:absolute; inset:0; display:grid; place-items:center;
+  font-weight:800; font-size:22px; letter-spacing:.2em; color:#dff; text-shadow:0 0 10px rgba(0,255,255,.35);
+}
+.floor-switcher .layer .bar{
+  position:absolute; left:0; right:0; top:0; height:38px; border-top-left-radius:inherit; border-top-right-radius:inherit;
+  background: linear-gradient(270deg, #00f6ff, #9b4dff, #00f6ff); background-size:260% 100%;
+  animation: barFlow 7s ease-in-out infinite; box-shadow: 0 0 14px rgba(0,246,255,.6), 0 0 20px rgba(155,77,255,.4); opacity:.9;
+  transition: box-shadow .3s ease, filter .3s ease;
+}
+.floor-switcher .iso:hover .layer{
+  transform: translate3d(calc(var(--z)*12px), calc(var(--z)*-28px), calc(var(--z)*52px));
+  filter:saturate(130%); box-shadow: 0 38px 60px rgba(0,0,0,.6), 0 0 26px rgba(0,255,255,.25) inset;
+}
+.floor-switcher .layer.active{
+  border-color: rgba(0,255,255,.85);
+  box-shadow: 0 0 30px rgba(0,255,255,.55), inset 0 0 0 1px rgba(0,255,255,.35), 0 28px 44px rgba(0,0,0,.55);
+}
+.floor-switcher .hit{ position:absolute; inset:0; border-radius:inherit; cursor:pointer; }
+
+/* โหมดทั้งตึก (เมื่อกด BPS): ให้ทุกชั้นปล่อยแสงพร้อมกัน */
+.floor-switcher .stack.all-mode .layer{
+  border-color: rgba(0,255,255,.85);
+  filter:saturate(145%);
+  animation: neonPulse 1.9s ease-in-out infinite;
+  animation-delay: var(--delay,0s);
+}
+.floor-switcher .stack.all-mode .layer::before{ opacity:.38; }
+.floor-switcher .stack.all-mode .layer .bar{ animation-duration:3s; box-shadow:0 0 18px rgba(0,246,255,.85), 0 0 26px rgba(155,77,255,.55); filter:saturate(160%); }
+
+@keyframes neonPulse{
+  0%,100%{ box-shadow: 0 28px 44px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.32), 0 0 0 rgba(0,255,255,0); }
+  50%{ box-shadow: 0 28px 44px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.42), 0 0 26px rgba(0,255,255,.45), 0 0 40px rgba(155,77,255,.35); }
+}
+
+/* ปุ่มด้านล่าง (ใช้คลาส .chips/.chip เดิมเพื่อกลมกลืนสไตล์) */
+.floor-switcher .chips{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:10px; pointer-events:auto; }
+.floor-switcher .chips .chip.building{ background:rgba(0,255,255,.14); color:#001316; border-color:rgba(0,255,255,.65); }
+
+/* ย่อบนมือถือ */
+@media (max-width:740px){
+  .floor-switcher .iso{ height:240px; }
+  .floor-switcher .layer{ width:220px; height:136px; }
+}
+
+/* === Place floor switcher bottom-center === */
 .floor-switcher{
-  position: absolute;
-  top: 900px;                 /* อยู่ใต้ .ios-clock (ซึ่งอยู่ที่ top:68px) */
+  position: fixed;          /* ลอยทับหน้า */
   left: 50%;
+  top: 800%;
+  bottom: var(--safe-bottom);  /* เลี่ยงชนแถวกล้องล่าง ถ้าจะชิดมากขึ้นปรับเป็น 16px ก็ได้ */
   transform: translateX(-50%);
-  z-index: 5;
   width: min(92vw, 980px);
-  display: flex;
-  justify-content: center;
-  pointer-events: none;       /* ให้คลิกได้เฉพาะปุ่มด้านใน */
+  z-index: 10002;           /* อยู่เหนือ iframe/พื้นหลังแน่ ๆ */
+  pointer-events: none;     /* ให้คลิกได้เฉพาะของด้านใน */
 }
 
-.chip-group{
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(12px) saturate(140%);
-  -webkit-backdrop-filter: blur(12px) saturate(140%);
-  border: 1px solid rgba(0,255,255,0.18);
-  border-radius: 999px;
-  padding: 8px 10px;
-  box-shadow: 0 10px 24px rgba(0,0,0,.35), 0 0 18px rgba(0,255,255,.08) inset;
-  pointer-events: auto;       /* เปิดคลิก */
-}
+/* ปุ่มข้างในต้องคลิกได้ */
+.floor-switcher .chips{ pointer-events: auto; }
 
-/* ปุ่มแบบชิป (minimal) */
-.chip{
-  appearance: none;
-  border: 1px solid rgba(0,255,255,0.25);
-  background: rgba(255,255,255,0.06);
-  color: #dff;
-  font: 600 12px/1 'Orbitron', sans-serif;
-  letter-spacing: .4px;
-  padding: 9px 14px;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: transform .18s ease, box-shadow .18s ease, background .18s ease, border-color .18s ease, color .18s ease;
-  text-shadow: 0 0 6px rgba(0,255,255,.25);
-}
+/* ถ้าต้องการให้เห็นเฉพาะปุ่ม ไม่แสดงกอง isometric ให้เปิดบรรทัดนี้ */
+/* .floor-switcher .iso{ display:none; } */
 
-.chip:hover{
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(0,0,0,.35);
-  border-color: rgba(0,255,255,0.45);
-}
-
-.chip.active{
-  background: rgba(0,255,255,0.18);
-  color: #001316;
-  border-color: rgba(0,255,255,0.85);
-  box-shadow: 0 0 16px rgba(0,255,255,.35);
-}
-
+/* มือถือ: ให้ชิดขอบล่างขึ้นอีกหน่อย */
 @media (max-width: 768px){
-  .floor-switcher{ top: 124px; width: 94vw; }
-  .chip{ font-size: 11px; padding: 8px 12px; }
+  .floor-switcher{ bottom: 16px; }
 }
+
 
     
   </style>
@@ -829,9 +858,14 @@
         <div class="clock"><span id="clock">--:--</span></div>
       </div>
       
-      <!-- ✅ Floor switcher under clock -->
+        <!-- ✅ Floor switcher under clock -->
         <div class="floor-switcher">
-          <div id="floorButtons" class="chip-group"></div>
+          <!-- Isometric stack (no BPS layer) -->
+          <div class="iso" id="isoIso">
+            <div class="stack" id="isoStack"></div>
+          </div>
+          <!-- ปุ่ม (มี BPS) -->
+          <div class="chips" id="isoChips"></div>
         </div>
 
 
@@ -1876,6 +1910,136 @@
       error: function(){ console.error('Sketchfab init error:', uid); }
     });
   }
+  
+  /* ===== Isometric Stack: ชั้นในสแต็ก (ไม่มี BPS) ===== */
+(function(){
+  // ใช้ key ให้ตรงกับ ANNO_TO_MODEL ของคุณ
+  const LAYERS = [
+    { key:'1st_Floor',  label:'1F' },
+    { key:'M_Floor',    label:'M'  },
+    { key:'2nd_Floor',  label:'2F' },
+    { key:'3rd_Floor',  label:'3F' },
+    { key:'4th_Floor',  label:'4F' },
+    { key:'Roof_Level', label:'5F' }, // = 5th ใน mapping เดิม
+  ];
+  const BUTTONS = [
+    { key:'BPS', label:'BPS', kind:'building' },
+    ...LAYERS.map(x => ({...x, kind:'floor'}))
+  ];
+
+  const iso   = document.getElementById('isoIso');
+  const stack = document.getElementById('isoStack');
+  const chips = document.getElementById('isoChips');
+
+  // ---------- สร้างเลเยอร์ (ล่าง -> บน) ----------
+  LAYERS.forEach((f, i) => {
+    const layer = document.createElement('div');
+    layer.className = 'layer';
+    layer.style.setProperty('--z', i);
+    layer.style.setProperty('--delay', (i*0.08)+'s');
+    layer.dataset.key = f.key;
+    layer.setAttribute('data-label', f.label);
+
+    const bar = document.createElement('div'); bar.className = 'bar';
+    layer.appendChild(bar);
+
+    const hit = document.createElement('div'); hit.className = 'hit';
+    hit.setAttribute('role','button'); hit.setAttribute('tabindex','0');
+    hit.setAttribute('aria-label','เลือกชั้น '+f.label);
+    hit.addEventListener('click', () => selectFloor(f.key));
+    hit.addEventListener('keydown', (e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); selectFloor(f.key); }});
+    layer.appendChild(hit);
+
+    stack.appendChild(layer);
+  });
+
+  // ---------- สร้างปุ่ม ----------
+  BUTTONS.forEach((bMeta) => {
+    const b = document.createElement('button');
+    b.className = 'chip' + (bMeta.kind==='building' ? ' building' : '');
+    b.textContent = bMeta.label;
+    b.dataset.key = bMeta.key;
+
+    // ใส่ uid ไว้เพื่อไฮไลต์ตามโมเดลที่แสดงอยู่
+    b.dataset.uid = (bMeta.key==='BPS') ? (typeof MODEL_START!=='undefined'?MODEL_START:'') : (ANNO_TO_MODEL?.[bMeta.key]||'');
+
+    b.addEventListener('click', () => {
+      if(bMeta.key === 'BPS') selectAll();
+      else selectFloor(bMeta.key);
+    });
+    chips.appendChild(b);
+  });
+
+  // ---------- Helper ----------
+  function highlightByUID(uid){
+    document.querySelectorAll('#isoChips .chip').forEach(c => {
+      c.classList.toggle('active', c.dataset.uid === uid);
+    });
+  }
+  function turnOnAllMode(on){
+    stack.classList.toggle('all-mode', !!on);
+    iso.classList.toggle('all-mode', !!on);
+    // ทำให้ทุกชั้นติด active เพื่อเรืองแสงนุ่ม ๆ
+    stack.querySelectorAll('.layer').forEach(l => l.classList.toggle('active', !!on));
+  }
+  function selectAll(){
+    turnOnAllMode(true);
+    // กลับโมเดลรวม + ซ่อนการ์ด Dock (พฤติกรรมเดิมของคุณ)
+    try{ if (typeof hideAll==='function') hideAll(); }catch(e){}
+    if (typeof initModel==='function' && typeof MODEL_START!=='undefined'){
+      initModel(MODEL_START);
+      highlightByUID(MODEL_START);
+    }
+  }
+  function selectFloor(key){
+    turnOnAllMode(false);
+    // ไฮไลต์เฉพาะเลเยอร์ที่เลือก
+    const layerList = [...stack.querySelectorAll('.layer')];
+    layerList.forEach(l => l.classList.remove('active'));
+    const target = layerList.find(l => l.dataset.key === key);
+    if(target) target.classList.add('active');
+
+    // เปิดโมเดลชั้นนั้น (พฤติกรรมเดิมของปุ่มเก่า)
+    const uid = ANNO_TO_MODEL?.[key];
+    if (uid){
+      try{ if (typeof hideAll==='function') hideAll(); }catch(e){}
+      if (typeof initModel==='function') initModel(uid);
+      highlightByUID(uid);
+    }else{
+      console.warn('ไม่พบ UID ของชั้น:', key);
+    }
+  }
+
+  // คีย์บอร์ด ↑/↓ ไหลไปทีละชั้น
+  document.addEventListener('keydown', (e)=>{
+    const list = LAYERS.map(x=>x.key);
+    const activeUID = [...document.querySelectorAll('#isoChips .chip')].find(c=>c.classList.contains('active'))?.dataset.uid;
+    let idx = list.findIndex(k => (ANNO_TO_MODEL?.[k]||'') === activeUID);
+    if(idx < 0) idx = 0;
+    if(e.key==='ArrowUp'){ idx = Math.min(list.length-1, idx+1); selectFloor(list[idx]); }
+    else if(e.key==='ArrowDown'){ idx = Math.max(0, idx-1); selectFloor(list[idx]); }
+  });
+
+  // ---- Hook: ให้ทุกครั้งที่มีการเรียก initModel(uid) จากที่อื่น ระบบนี้จะ sync ไฮไลต์ให้เอง ----
+  (function patchInitForIsoHighlight(){
+    if (typeof initModel !== 'function') return;
+    const _init = initModel;
+    window.initModel = function(uid){
+      const r = _init(uid);
+      // ถ้าเป็นโมเดลรวม = BPS
+      if (typeof MODEL_START!=='undefined' && uid === MODEL_START){
+        turnOnAllMode(true);
+      }else{
+        turnOnAllMode(false);
+      }
+      highlightByUID(uid);
+      return r;
+    };
+  })();
+
+  // เริ่มต้นที่ BPS (ทั้งตึก)
+  selectAll();
+})();
 
 
   // เริ่มต้นที่โมเดลรวม
@@ -2619,4 +2783,3 @@ function updateVisibility3D(){
 
 </body>
 </html>
-
