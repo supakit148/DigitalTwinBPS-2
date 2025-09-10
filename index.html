@@ -2840,6 +2840,42 @@ function renderFloorMapFromSheet(floorKey, activeName){
 }
 </script>
 
+<script>
+async function checkAlarmAndFocus() {
+  const sheetID   = "1pG8ldAgtHsOzlVxjITuBp2XCS77Sdk15fvmR-YU-MDg";
+  const sheetName = "Data_EachFloor_Alarm";
+  const url = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
+
+  try {
+    const res = await fetch(url);
+    const txt = await res.text();
+    const json = JSON.parse(txt.substr(47).slice(0, -2));
+    const rows = json.table.rows;
+
+    // ค่าช่อง A2 (index 0, แถวที่ 1)
+    const alarmValue = rows[1]?.c[0]?.v || "";
+    console.log("Alarm from sheet:", alarmValue);
+
+    if (alarmValue && alarmValue !== "No Alarm" && apiRef) {
+      // หา index ของ annotation ที่ชื่อเท่ากับ alarmValue
+      apiRef.getAnnotationList(function(err, annos){
+        if (err || !annos) return;
+        const idx = annos.findIndex(a => (a.name || a.title) === alarmValue);
+        if (idx >= 0) {
+          console.log("Focusing annotation:", alarmValue, idx);
+          apiRef.gotoAnnotation(idx, {preventCameraAnimation: false});
+        }
+      });
+    }
+  } catch (err) {
+    console.error("❌ Error reading alarm sheet:", err);
+  }
+}
+
+// เรียกครั้งแรก และทำซ้ำทุก 10 วินาที
+setInterval(checkAlarmAndFocus, 10000);
+checkAlarmAndFocus();
+</script>
 
 
 
