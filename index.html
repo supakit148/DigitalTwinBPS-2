@@ -1956,7 +1956,7 @@ body.modal-open {
               const targetUID = ANNO_TO_MODEL[CameraName];
               if (targetUID && targetUID !== activeUID){
                 initModel(targetUID);
-                hideCenterCCTV();
+                hideAll();
               }
             });
           };
@@ -2598,9 +2598,11 @@ function updateVisibility3D(){
           // ใช้ธง suppress ของระบบเดิมถ้ามี ไม่งั้นใช้โลคอล
           const hasGlobalSuppress = (typeof suppressHistoryPush !== 'undefined');
           if (hasGlobalSuppress) suppressHistoryPush = true; else _localSuppress = true;
+          hideAll();
           initModel(MODEL_START);
           if (hasGlobalSuppress) suppressHistoryPush = false; else _localSuppress = false;
         } else {
+          hideAll();
           initModel(spec.uid);
         }
       });
