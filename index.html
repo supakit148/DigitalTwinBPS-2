@@ -1053,6 +1053,42 @@ body.modal-open {
   align-self: flex-start;  /* override จาก align-items:flex-end ของ parent */
   margin-top: 8px;         /* (เลือกได้) เว้นหัวนิดหน่อยให้ดูโปร่ง */
 }
+
+    /* ===== In/Out/Occupancy pill ===== */
+    .glass-card .io-pill{
+      position:absolute; right:6px; bottom:6px;
+      display:flex; gap:6px; align-items:center;
+      background: rgba(0,0,0,.45);
+      border:1px solid rgba(0,255,255,.35);
+      border-radius:999px;
+      padding:6px 8px;
+      backdrop-filter: blur(8px) saturate(140%);
+      box-shadow: 0 0 10px #00ffff44, inset 0 0 8px rgba(255,255,255,.08);
+    }
+    .glass-card .io{
+      display:inline-flex; align-items:center; gap:6px;
+      padding:6px 10px; border-radius:999px;
+      font: 700 12px/1 'Orbitron', sans-serif;
+      letter-spacing:.4px; color:#e6ffff;
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.12);
+      text-shadow: 0 0 6px rgba(0,255,255,.25);
+      user-select: none;
+    }
+    .glass-card .io svg{
+      width:16px; height:16px; flex:0 0 16px;
+      filter: drop-shadow(0 0 6px rgba(0,255,255,.35));
+      fill: currentColor;
+    }
+    .glass-card .io.in  { color:#20f7a7; border-color:#20f7a755; }
+    .glass-card .io.out { color:#ff49ff; border-color:#ff49ff66; }
+    .glass-card .io.occ { color:#00eaff; border-color:#00eaff66; }
+
+    @media (max-width: 768px){
+      .glass-card .io-pill{ gap:4px; padding:5px 6px; }
+      .glass-card .io{ padding:5px 8px; font-size:11px; }
+      .glass-card .io svg{ width:14px; height:14px; }
+    }
     
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
@@ -1076,6 +1112,32 @@ body.modal-open {
     <!-- กล้องแนวตั้งกลาง -->
     <div class="cctv-col-center">
       <div id="CCTV9" class="glass-card"><h32 id="name9">-</h32><img id="modalImg9"><h3 id="datetime9">-</h3>
+      
+      <!-- ▶ ป้ายเข้า-ออก-คงอยู่ -->
+      <div class="io-pill">
+        <div class="io in" title="จำนวนคนเข้า">
+          <!-- enter -->
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 2a3 3 0 110 6 3 3 0 010-6zm-6.5 17c0-2.5 5-3.9 6.5-3.9S18.5 16.5 18.5 19v1H5.5v-1zM20 7h-5l1.8-1.8-1.4-1.4L12 7l3.4 3.2 1.4-1.4L15 7h5V5z"/>
+          </svg>
+          <span id="in9">0</span>
+        </div>
+        <div class="io out" title="จำนวนคนออก">
+          <!-- exit -->
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 2a3 3 0 110 6 3 3 0 010-6zm-6.5 17c0-2.5 5-3.9 6.5-3.9S18.5 16.5 18.5 19v1H5.5v-1zM20 9h-5l1.8 1.8-1.4 1.4L12 9l3.4-3.2 1.4 1.4L15 9h5v2z"/>
+          </svg>
+          <span id="out9">0</span>
+        </div>
+        <div class="io occ" title="จำนวนคงอยู่ภายในโซน">
+          <!-- occupancy -->
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M7 8a3 3 0 110-6 3 3 0 010 6zM1 20c0-2.5 4-4 6-4s6 1.5 6 4v1H1v-1zm13-9a3 3 0 110-6 3 3 0 010 6zm-2 9c0-1.2.4-2.3 1.1-3.2.7-.8 1.6-1.3 2.9-1.8 1.3.5 2.2 1 2.9 1.8.7.9 1.1 2 1.1 3.2v1H12v-1z"/>
+          </svg>
+          <span id="occ9">0</span>
+        </div>
+      </div>
+      
       </div>
     </div>
     
@@ -2093,6 +2155,14 @@ body.modal-open {
                 document.getElementById("infoBox21").innerHTML = formatCeil2(para20) + "<br>ppm";
              
                 document.getElementById("NumberFloor").innerHTML = para21;
+                
+                const para22 = row[33]?.v ?? 'ไม่พบข้อมูล';
+                const para23 = row[34]?.v ?? 'ไม่พบข้อมูล';
+                const para24 = row[35]?.v ?? 'ไม่พบข้อมูล';
+       
+                document.getElementById("in9").innerHTML = para22;
+                document.getElementById("out9").innerHTML = para23;
+                document.getElementById("occ9").innerHTML = para24;
                 
                 /* อัปเดต badge ด้านซ้าย (สถานะ) */
                 const p21 = document.getElementById("Para21Label");
@@ -3291,4 +3361,3 @@ checkAlarmAndFocus();
 
 </body>
 </html>
-
