@@ -15,6 +15,7 @@
       --radius: 14px;
       --text: #ffffff;
       --neon: 0 0 8px #0ff, 0 0 16px #0ff;
+      --neon2:#64f3ff;                          /* light neon */
       
       --gap: 12px;
       --card-w: clamp(180px, 20vw, 280px);
@@ -1090,6 +1091,75 @@ body.modal-open {
       .glass-card .io svg{ width:14px; height:14px; }
     }
     
+/* === Neon Blue Water (inline, scoped) === */
+#waterWidget{
+  --bg1:#060b19; --bg2:#0b1230;
+  --neon:#00eaff; --neon2:#64f3ff; --glow:#bff7ff;
+  position: relative; width:100%; height:160px;
+  border-radius:12px; overflow:hidden;
+  background:
+    radial-gradient(800px 400px at 78% 18%, rgba(0,234,255,.18), transparent 60%),
+    linear-gradient(180deg, var(--bg1) 0%, var(--bg2) 100%);
+  box-shadow: inset 0 0 12px rgba(0,234,255,.15);
+}
+
+/* ชั้นน้ำ (ปรับจาก fixed → absolute ภายในกล่อง) */
+#waterWidget .water{ position:absolute; inset:0; pointer-events:none; }
+#waterWidget .pane{ position:absolute; inset:0; }
+#waterWidget .pane svg{ width:200%; height:100%; display:block; will-change:transform; }
+
+/* seamless drift */
+#waterWidget .d1{ animation: nw-drift1 9s linear infinite; }
+#waterWidget .d2{ animation: nw-drift2 13s linear infinite; }
+#waterWidget .d3{ animation: nw-drift3 20s linear infinite; }
+@keyframes nw-drift1{ from{transform:translateX(0)} to{transform:translateX(-50%)} }
+@keyframes nw-drift2{ from{transform:translateX(0)} to{transform:translateX(-50%)} }
+@keyframes nw-drift3{ from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+/* เส้นไฮไลต์สันคลื่น + เรืองแสงก้นบ่อ */
+#waterWidget .crest{ position:absolute; left:0; right:0; bottom:calc(50% - 2px); height:3px;
+  background: linear-gradient(90deg, transparent, rgba(191,247,255,.8), transparent);
+  filter: drop-shadow(0 0 12px rgba(191,247,255,.45)); opacity:.45; }
+#waterWidget .glow{ position:absolute; left:0; right:0; bottom:0; height:60px; z-index:3;
+  background: radial-gradient(100% 120% at 50% 100%, rgba(0,234,255,.22), transparent 70%);
+  mix-blend-mode:screen; }
+
+#waterWidget svg{ shape-rendering:geometricPrecision; text-rendering:geometricPrecision; }
+@media (prefers-reduced-motion: reduce){ #waterWidget .pane svg{ animation-duration:.001s; } }
+
+/* === Water overrides: transparent top & edge-to-edge in .left card === */
+
+/* โปร่งใสทั้งบล็อค และตัดเงากล่องออก */
+#waterWidget{
+  background: transparent !important;
+  box-shadow: none !important;
+  /* เพิ่มระยะห่างใต้ผิวน้ำนิดหน่อยตามชอบ */
+  margin-block: 8px 10px;
+}
+
+/* ทำให้กินเต็มขอบการ์ดในฝั่ง .left (การ์ดมี padding:16px) */
+.left .card #waterWidget{
+  /* ดึงออกชิดขอบซ้าย–ขวา */
+  margin-left: -16px;
+  margin-right: -16px;
+  width: calc(100% + 32px);
+  border-radius: 0;        /* แตะขอบเนียน ๆ */
+  overflow: hidden;        /* กันไม่ให้ล้น */
+}
+
+/* ชั้นน้ำยังคง absolute ภายในบล็อค ไม่หลุดออกนอก .left */
+#waterWidget .water{ position:absolute; inset:0; pointer-events:none; }
+
+/* คลื่นขยายกว้าง 200% และเลื่อน -50% เพื่อให้ต่อเนื่องถึงสุดขอบ */
+#waterWidget .pane svg{ width:200%; height:100%; display:block; will-change:transform; }
+
+/* เงาสันคลื่น/แสงก้นบ่อลดลงเล็กน้อยเพื่อให้ดูโปร่ง */
+#waterWidget .crest{ opacity:.35; }
+#waterWidget .glow{
+  height:72px;
+  background: radial-gradient(110% 130% at 50% 100%, rgba(0,234,255,.18), transparent 70%);
+}
+
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 </head>
@@ -1339,7 +1409,124 @@ body.modal-open {
               <strong style="color: #0ff;">Water Usage</strong>
               <div id="infoBox13">-</div>
             </div>
-          </div><br></br>
+          </div>
+<!-- Neon Blue Water — Inline Widget -->
+<div id="waterWidget" aria-label="Neon water visual">
+  <div class="water">
+    <!-- LAYER 1 (front) -->
+    <div class="pane">
+      <svg class="d1" viewBox="0 0 1600 400" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="nw-body1" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="var(--neon)" stop-opacity=".36"/>
+            <stop offset="100%" stop-color="var(--neon2)" stop-opacity=".36"/>
+          </linearGradient>
+          <linearGradient id="nw-rim1" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="var(--glow)"/>
+            <stop offset="100%" stop-color="var(--neon2)"/>
+          </linearGradient>
+          <filter id="nw-softGlow1" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB">
+            <feGaussianBlur stdDeviation="6" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <g filter="url(#nw-softGlow1)" style="mix-blend-mode:screen">
+          <g id="nw-tile1">
+            <path id="nw-p1" fill="url(#nw-body1)">
+              <animate attributeName="d" dur="7.5s" repeatCount="indefinite" values="
+                M0,240 C320,180 640,300 960,240 C1280,190 1440,260 1600,240 V400 H0 Z;
+                M0,232 C320,210 640,270 960,232 C1280,210 1440,280 1600,232 V400 H0 Z;
+                M0,246 C320,192 640,312 960,246 C1280,200 1440,252 1600,246 V400 H0 Z;
+                M0,240 C320,180 640,300 960,240 C1280,190 1440,260 1600,240 V400 H0 Z
+              "/>
+              <animateTransform attributeName="transform" type="translate" dur="5.2s"
+                values="0 0; 0 -10; 0 0; 0 10; 0 0" repeatCount="indefinite"/>
+            </path>
+            <use href="#nw-p1" fill="none" stroke="url(#nw-rim1)" stroke-width="2.5" opacity=".9"/>
+          </g>
+          <use href="#nw-tile1"/><use href="#nw-tile1" transform="translate(1600,0)"/>
+        </g>
+      </svg>
+    </div>
+
+    <!-- LAYER 2 (mid) -->
+    <div class="pane">
+      <svg class="d2" viewBox="0 0 1600 400" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="nw-body2" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="var(--neon2)" stop-opacity=".28"/>
+            <stop offset="100%" stop-color="var(--neon)" stop-opacity=".28"/>
+          </linearGradient>
+          <linearGradient id="nw-rim2" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="var(--neon2)"/>
+            <stop offset="100%" stop-color="var(--glow)"/>
+          </linearGradient>
+          <filter id="nw-softGlow2" x="-25%" y="-25%" width="150%" height="150%" color-interpolation-filters="sRGB">
+            <feGaussianBlur stdDeviation="5"/>
+          </filter>
+        </defs>
+        <g filter="url(#nw-softGlow2)" style="mix-blend-mode:screen" opacity=".95">
+          <g id="nw-tile2">
+            <path id="nw-p2" fill="url(#nw-body2)">
+              <animate attributeName="d" dur="10s" repeatCount="indefinite" values="
+                M0,282 C360,240 720,320 1080,282 C1320,260 1480,300 1600,282 V400 H0 Z;
+                M0,288 C360,262 720,302 1080,288 C1320,300 1480,270 1600,288 V400 H0 Z;
+                M0,274 C360,232 720,330 1080,274 C1320,248 1480,308 1600,274 V400 H0 Z;
+                M0,282 C360,240 720,320 1080,282 C1320,260 1480,300 1600,282 V400 H0 Z
+              "/>
+              <animateTransform attributeName="transform" type="translate" dur="7s"
+                values="0 0; 0 -7; 0 0; 0 7; 0 0" repeatCount="indefinite"/>
+            </path>
+            <use href="#nw-p2" fill="none" stroke="url(#nw-rim2)" stroke-width="2" opacity=".8"/>
+          </g>
+          <use href="#nw-tile2"/><use href="#nw-tile2" transform="translate(1600,0)"/>
+        </g>
+      </svg>
+    </div>
+
+    <!-- LAYER 3 (back) -->
+    <div class="pane">
+      <svg class="d3" viewBox="0 0 1600 400" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="nw-body3" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="var(--neon)" stop-opacity=".18"/>
+            <stop offset="100%" stop-color="var(--neon2)" stop-opacity=".18"/>
+          </linearGradient>
+          <linearGradient id="nw-rim3" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#ffffff"/>
+            <stop offset="100%" stop-color="var(--neon2)"/>
+          </linearGradient>
+          <filter id="nw-softGlow3" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
+            <feGaussianBlur stdDeviation="4"/>
+          </filter>
+        </defs>
+        <g filter="url(#nw-softGlow3)" style="mix-blend-mode:screen" opacity=".8">
+          <g id="nw-tile3">
+            <path id="nw-p3" fill="url(#nw-body3)">
+              <animate attributeName="d" dur="14s" repeatCount="indefinite" values="
+                M0,320 C380,300 760,340 1140,320 C1320,315 1460,330 1600,320 V400 H0 Z;
+                M0,326 C380,330 760,310 1140,326 C1320,330 1460,310 1600,326 V400 H0 Z;
+                M0,314 C380,292 760,346 1140,314 C1320,308 1460,336 1600,314 V400 H0 Z;
+                M0,320 C380,300 760,340 1140,320 C1320,315 1460,330 1600,320 V400 H0 Z
+              "/>
+              <animateTransform attributeName="transform" type="translate" dur="9s"
+                values="0 0; 0 -5; 0 0; 0 5; 0 0" repeatCount="indefinite"/>
+            </path>
+            <use href="#nw-p3" fill="none" stroke="url(#nw-rim3)" stroke-width="1.5" opacity=".7"/>
+          </g>
+          <use href="#nw-tile3"/><use href="#nw-tile3" transform="translate(1600,0)"/>
+        </g>
+      </svg>
+    </div>
+
+    <div class="crest"></div>
+    <div class="glow"></div>
+  </div>
+</div>
+<!-- /Neon Blue Water -->
+
+          
+          <br></br>
               <div id="area" style="width:100%; height:300px;"></div>
       </div>
       </div>
