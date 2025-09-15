@@ -671,10 +671,10 @@
   font-size:18px; letter-spacing:2px;
   color:#cfefff; opacity:.85;
   align-self:flex-start;
-  position:relative; top:20px;
+  position:relative; top:-10px;
 }
 .number {
-  font-size: 66px; font-weight: 900;
+  font-size: 45px; font-weight: 900;
   color: #00f6ff;
   text-shadow: 0 0 12px #00f6ff, 0 0 28px #9b4dff;
   display: inline-block;      /* เพื่อให้ translate ทำงานชัวร์ */
@@ -859,6 +859,200 @@
 body.modal-open {
   overflow: hidden;
 }
+
+/* จัดบรรทัดสถานะ (para21) กับเลขชั้น ให้อยู่บรรทัดเดียวกัน */
+.floor-card .floor-line{
+  display: flex;
+  align-items: baseline;   /* ให้แนวตัวอักษรรับกันกับเลขใหญ่ */
+  justify-content: space-between; /* ซ้าย-ขวาพอดีช่อง */
+  gap: 10px;
+  width: 100%;
+}
+
+/* ป้ายสถานะจาก para21 ที่ชิดซ้าย */
+.para21-badge{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font: 700 12px/1 'Orbitron', sans-serif;
+  letter-spacing: .4px;
+  color: #001316;
+  background: rgba(0,255,255,.22);
+  border: 1px solid rgba(0,255,255,.65);
+  text-shadow: 0 0 6px rgba(0,255,255,.25);
+  box-shadow: 0 0 12px rgba(0,246,255,.18) inset, 0 4px 10px rgba(0,0,0,.25);
+  white-space: nowrap;         /* ไม่ตัดบรรทัด */
+  max-width: 52%;              /* กันล้นบรรทัดในช่องเดิม */
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ถ้าต้องการให้เลขชั้นชิดขวาแบบนิ่ง ก็ปล่อย .number เดิมได้เลย */
+/* (มี transform: translateY(18px); อยู่แล้ว) */
+/* ถ้าตัวเลขซ้อน ให้ลด translateY ลงเล็กน้อยได้ เช่น 12px */
+
+    .para21-badge.is-bps{
+      background: rgba(0,255,255,.24);
+      border-color: rgba(0,255,255,.85);
+    }
+    .para21-badge.is-alert{
+      background: rgba(255,73,255,.22);
+      border-color: rgba(255,73,255,.75);
+      color:#160019;
+    }
+    .para21-badge.is-normal{
+      background: rgba(56,189,248,.18);
+      border-color: rgba(56,189,248,.55);
+    }
+
+/* === Floor line layout: left group (chips+badge) + right number === */
+.floor-card .floor-line{
+  display:flex; align-items:baseline; justify-content:space-between; gap:10px;
+  width:100%;
+}
+.floor-card .floor-line .left-line{
+  display:flex; align-items:center; gap:8px; min-width:0;  /* กันล้น */
+}
+
+/* === Mini layer chips (ซ้ายมือ) === */
+.mini-chips{ display:flex; gap:6px; flex-wrap:wrap; align-items:center; max-width:56%; }
+.mini-chip{
+  appearance:none; border:1px solid rgba(0,255,255,.28);
+  background:rgba(255,255,255,.06); color:#dff;
+  font:700 10px/1 "Orbitron",sans-serif; letter-spacing:.08em;
+  padding:6px 8px; border-radius:999px; cursor:pointer;
+  transition:.18s ease; text-shadow:0 0 6px rgba(0,255,255,.25); user-select:none;
+}
+.mini-chip:hover{ transform:translateY(-1px); box-shadow:0 8px 18px rgba(0,0,0,.35); border-color:rgba(0,255,255,.65); }
+.mini-chip.active{
+  background:rgba(0,255,255,.18); color:#001316; border-color:rgba(0,255,255,.85);
+  box-shadow:0 0 12px rgba(0,246,255,.22);
+}
+.mini-chip.building{ background:rgba(0,255,255,.12); border-color:rgba(0,255,255,.45); }
+
+/* แต้มสีขอบตามชั้น (ปรับได้ตามใจ) */
+.mini-chip[data-key="1st_Floor"]{ border-color:#31f2ff99; }
+.mini-chip[data-key="M_Floor"]  { border-color:#9b4dff99; }
+.mini-chip[data-key="2nd_Floor"]{ border-color:#00d1ff99; }
+.mini-chip[data-key="3rd_Floor"]{ border-color:#38bdf899; }
+.mini-chip[data-key="4th_Floor"]{ border-color:#a78bfa99; }
+.mini-chip[data-key="Roof_Level"]{ border-color:#22d3ee99; } /* ใช้แทน 5F */
+
+/* ===== Floor line layout (ซ้าย: stack + badge, ขวา: number) ===== */
+.floor-card .floor-line{ display:flex; align-items:baseline; justify-content:space-between; gap:12px; width:100%; }
+.floor-card .floor-line .left-line{ display:flex; align-items:center; gap:10px; min-width:0; }
+
+/* ===== Neon Elevator (mini) — all prefixed elev-mini* ===== */
+.elev-mini{
+  --w: 168px;          /* ความกว้าง stack ย่อ */
+  --h: 96px;           /* ความสูงแต่ละชั้น */
+  --radius: 12px;
+  --line: rgba(0,255,255,.35);
+  --line-strong: rgba(0,255,255,.85);
+  --glass: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.06)), rgba(255,255,255,.05);
+  --shadow: 0 18px 28px rgba(0,0,0,.45);
+  position: relative; width: var(--w); height: 110px; /* ความสูงพื้นที่ stack */
+}
+.elev-mini .iso-mini{ position:relative; width:100%; height:100%; display:grid; place-items:center; perspective:900px; }
+.elev-mini .stack-mini{ position:relative; transform: rotateX(58deg) rotateZ(-32deg) translateY(-8px); transform-style:preserve-3d; }
+
+/* ชั้นย่อ */
+.elev-mini .layer-mini{
+  --z:0;
+  position:absolute; left:0; top:0; width:var(--w); height:var(--h);
+  border-radius:var(--radius); background:var(--glass); border:1px solid var(--line);
+  box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,.28);
+  transform: translate3d(calc(var(--z)*5px), calc(var(--z)*-14px), calc(var(--z)*26px));
+  transition: transform .45s cubic-bezier(.2,.8,.2,1), box-shadow .35s, border-color .35s, filter .35s, opacity .35s;
+  display:grid; place-items:center; overflow:hidden; user-select:none;
+}
+.elev-mini .layer-mini::before{
+  content:""; position:absolute; inset:-1px; border-radius:inherit; pointer-events:none;
+  background: linear-gradient(140deg, rgba(0,255,255,.55), rgba(0,255,255,0) 30%, rgba(154,77,255,.45));
+  mix-blend-mode:screen; opacity:.22; transition:opacity .25s ease;
+}
+.elev-mini .layer-mini::after{
+  content:attr(data-label);
+  position:absolute; inset:0; display:grid; place-items:center;
+  font-weight:800; font-size:16px; letter-spacing:.18em; color:#dff; text-shadow: 0 0 8px rgba(0,255,255,.35);
+}
+
+/* แถบด้านบน */
+.elev-mini .bar-mini{
+  position:absolute; left:0; right:0; top:0; height:28px; border-top-left-radius:inherit; border-top-right-radius:inherit;
+  background: linear-gradient(270deg, #00f6ff, #9b4dff, #00f6ff); background-size:260% 100%;
+  animation: elevBarFlow 7s ease-in-out infinite; box-shadow: 0 0 12px rgba(0,246,255,.55), 0 0 16px rgba(155,77,255,.35);
+  opacity:.9; transition: box-shadow .3s ease, filter .3s ease;
+}
+
+/* hover fan-out เล็กน้อย */
+.elev-mini .iso-mini:hover .layer-mini{
+  transform: translate3d(calc(var(--z)*9px), calc(var(--z)*-22px), calc(var(--z)*40px));
+  filter:saturate(130%);
+  box-shadow: 0 28px 40px rgba(0,0,0,.55), 0 0 20px rgba(0,255,255,.22) inset;
+}
+
+/* active = เลือกชั้นเดียว */
+.elev-mini .layer-mini.active{
+  border-color: var(--line-strong);
+  box-shadow: 0 0 22px rgba(0,255,255,.5), inset 0 0 0 1px rgba(0,255,255,.32), var(--shadow);
+}
+
+/* โหมด BPS: เน้นทุกชั้น */
+.elev-mini .stack-mini.all-mode .layer-mini{
+  border-color: var(--line-strong);
+  filter:saturate(145%);
+  animation: elevPulse 1.9s ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+.elev-mini .stack-mini.all-mode .layer-mini::before{ opacity:.36; }
+
+/* ตอนเลือกชั้นเดียว: ให้แถบอื่นเบา */
+.elev-mini .stack-mini:not(.all-mode) .layer-mini .bar-mini{ opacity:.15; filter:saturate(60%) blur(.4px); animation:none; box-shadow:none; }
+.elev-mini .stack-mini:not(.all-mode) .layer-mini.active .bar-mini{
+  opacity:.95; filter:saturate(160%); animation: elevBarFlow 6s ease-in-out infinite;
+  box-shadow: 0 0 12px rgba(0,246,255,.6), 0 0 18px rgba(155,77,255,.4);
+}
+
+/* Animations */
+@keyframes elevBarFlow{ 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+@keyframes elevPulse{
+  0%,100%{ box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,.28), 0 0 0 rgba(0,255,255,0); }
+  50%{ box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,.38), 0 0 22px rgba(0,255,255,.4), 0 0 30px rgba(155,77,255,.3); }
+}
+
+/* ชิดซ้ายเฉพาะสแตกเลเยอร์ของ mini-elevator */
+.elev-mini .iso-mini{
+  display: grid;           /* คง grid ไว้ก็ได้ */
+  justify-items: start;    /* เดิม center → start */
+  align-items: center;
+  transform: scale(0.85); /* ย่อทั้งก้อน */
+  margin-left: -30px;    /* ขยับไปทางซ้าย */
+  margin-bottom: 0px;           /* เว้นห่างจากขอบล่างนิดหน่อย */
+}
+
+/* กันเผื่อมี margin/translation ทำให้ดูไม่ซ้ายจริง */
+.elev-mini .stack-mini{
+  margin-left: 20px;
+  /* ถ้ารู้สึกว่ามันยังเยื้องขวาเพราะ transform 3D
+     ลดค่า translateY/translateX ได้ เช่น: */
+  /* transform: rotateX(58deg) rotateZ(-32deg) translateY(-8px) translateX(0); */
+}
+
+/* --- ยืดความสูง floor-card ตามคอนเทนต์ --- */
+.floor-card{
+  /* height: 120px;   <- เอาออก หรือทับด้วยบรรทัดล่าง */
+  height: auto;        /* ให้สูงตามเนื้อหาจริง */
+  min-height: 120px;   /* กันไว้ให้อย่างน้อยเท่าเดิม */
+}
+
+/* --- จัด Elevator ให้ชิดซ้ายภายใน floor-card --- */
+.elev-mini{
+  align-self: flex-start;  /* override จาก align-items:flex-end ของ parent */
+  margin-top: 8px;         /* (เลือกได้) เว้นหัวนิดหน่อยให้ดูโปร่ง */
+}
     
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
@@ -970,10 +1164,25 @@ body.modal-open {
     <div class="left">
       <div class="card">
         <h3></h3>
+        
         <div class="floor-card">
-          <span class="label" id="BuildorFloor"></span>
-          <span class="number" id="NumberFloor">-</span>
+
+            <span class="label" id="BuildorFloor"></span>
+            <!-- เลขชั้นใหญ่เดิม -->
+            <span class="number" id="NumberFloor">-</span><br></br><br></br>
+
+              <!-- 🔹 Neon Elevator (mini) -->
+              <div id="ElevMini" class="elev-mini" aria-label="Floor stack">
+                <div class="iso-mini" id="isoMini">
+                  <div class="stack-mini" id="stackMini"></div>
+                </div>
+              </div>
+
         </div>
+        
+
+
+                
         <div class="camera-image">
           <!-- แผนที่กล้องแบบล้ำสมัยจะแสดงตรงนี้ -->
           <div id="cctvMap"></div>
@@ -1884,6 +2093,23 @@ body.modal-open {
                 document.getElementById("infoBox21").innerHTML = formatCeil2(para20) + "<br>ppm";
              
                 document.getElementById("NumberFloor").innerHTML = para21;
+                
+                /* อัปเดต badge ด้านซ้าย (สถานะ) */
+                const p21 = document.getElementById("Para21Label");
+                if (p21) p21.textContent = para21;
+                
+                /* ถ้าต้องการให้ NumberFloor ยังแสดงชั้นตามเดิม และเคยใช้ para21 แทน
+                   สามารถคงไว้ได้ หรือถ้าคุณมีเลขชั้นจากที่อื่น ให้เปลี่ยนมาใช้ค่านั้นแทน */
+                // document.getElementById("NumberFloor").innerHTML = para21;
+                                
+                if (p21){
+                  p21.textContent = para21;
+                  p21.classList.remove('is-bps','is-alert','is-normal');
+                  const v = String(para21).toUpperCase();
+                  if (v.includes('BPS'))        p21.classList.add('is-bps');
+                  else if (v.includes('ALERT')) p21.classList.add('is-alert');
+                  else                          p21.classList.add('is-normal');
+                }
 
               break;
             }
@@ -2863,7 +3089,206 @@ setInterval(checkAlarmAndFocus, 10000);
 checkAlarmAndFocus();
 </script>
 
+<script>
+/* ===== Mini Layer Chips (ซ้ายบรรทัดเดียวกับ NumberFloor) ===== */
+(function(){
+  // ป้ายสั้น ๆ บนชิป
+  const LABELS = {
+    'HOME':       'BPS',
+    '1st_Floor':  '1F',
+    'M_Floor':    'M',
+    '2nd_Floor':  '2F',
+    '3rd_Floor':  '3F',
+    '4th_Floor':  '4F',
+    'Roof_Level': '5F'
+  };
+
+  // รายการปุ่ม: HOME + แต่ละชั้น (อิง ANNO_TO_MODEL เดิม)
+  const MINI_BTNS = [
+    { key:'HOME', uid: (typeof MODEL_START!=='undefined'?MODEL_START:null), label: LABELS['HOME'], kind:'building' },
+    ...Object.entries(typeof ANNO_TO_MODEL!=='undefined'?ANNO_TO_MODEL:{}).map(([k, uid])=>({
+      key:k, uid, label: LABELS[k] || k.replace(/_/g,' '), kind:'floor'
+    }))
+  ];
+
+  const box = document.getElementById('miniChips');
+  if(!box) return;
+
+  // สร้างปุ่ม
+  MINI_BTNS.forEach(spec=>{
+    const b = document.createElement('button');
+    b.className = 'mini-chip' + (spec.kind==='building' ? ' building' : '');
+    b.textContent = spec.label;
+    b.dataset.key = spec.key;
+    b.dataset.uid = spec.uid || '';
+    b.title = (spec.kind==='building'?'All (BPS)':'Go to ' + spec.label);
+    b.addEventListener('click', ()=>{
+      // กด BPS = กลับโมเดลรวม
+      if(spec.key==='HOME' && window.initModel && typeof MODEL_START!=='undefined'){
+        try{ if(typeof historyStack!=='undefined') historyStack.length = 0; }catch(e){}
+        if(typeof suppressHistoryPush!=='undefined') suppressHistoryPush = true;
+        hideAll?.();                // ซ่อนการ์ดก่อน (ฟังก์ชันเดิมของคุณ)
+        initModel(MODEL_START);     // เรียกของเดิม
+        if(typeof suppressHistoryPush!=='undefined') suppressHistoryPush = false;
+        setActiveChip('HOME');
+      }else if(spec.uid){
+        hideAll?.();
+        initModel(spec.uid);
+        setActiveChip(spec.key);
+      }
+    });
+    box.appendChild(b);
+  });
+
+  function setActiveChip(keyOrUid){
+    // รับได้ทั้ง key ('1st_Floor') หรือ uid ของโมเดล
+    const byKey = !!document.querySelector(`.mini-chip[data-key="${keyOrUid}"]`);
+    document.querySelectorAll('#miniChips .mini-chip').forEach(btn=>{
+      const on = byKey ? (btn.dataset.key===keyOrUid) : (btn.dataset.uid===keyOrUid);
+      btn.classList.toggle('active', on);
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+  }
+
+  // ไฮไลต์เริ่มต้นที่ HOME
+  setActiveChip('HOME');
+
+  // hook ซิงก์ไฮไลต์ทุกครั้งที่ initModel ถูกเรียกที่อื่น
+  (function patchInitForMiniChips(){
+    if(!window.initModel) return; // รอให้มีฟังก์ชันจริงก่อน
+    const _init = window.initModel;
+    window.initModel = function(uid){
+      const r = _init(uid);
+      try{
+        // โยง uid → key (เพื่อให้ชิปถูกตัวเสมอ)
+        const hit = MINI_BTNS.find(b=>b.uid===uid);
+        setActiveChip(hit ? hit.key : uid);
+      }catch(e){}
+      return r;
+    };
+  })();
+})();
+</script>
+
+<script>
+/* ===== Neon Elevator (mini) — build & wire ===== */
+(function(){
+  // map key ←→ uid + label
+  const LABELS = {
+    'HOME'      : 'BPS',
+    '1st_Floor' : '1F',
+    'M_Floor'   : 'M',
+    '2nd_Floor' : '2F',
+    '3rd_Floor' : '3F',
+    '4th_Floor' : '4F',
+    'Roof_Level': '5F'
+  };
+
+  // ลำดับชั้นล่าง→บน (ตามที่คุณใช้ใน 3D)
+  const FLOORS = ['1st_Floor','M_Floor','2nd_Floor','3rd_Floor','4th_Floor','Roof_Level'];
+
+  const iso   = document.getElementById('isoMini');
+  const stack = document.getElementById('stackMini');
+  if(!iso || !stack) return;
+
+  // ----- สร้างชั้น (bottom → top) -----
+  FLOORS.forEach((key, i) => {
+    const layer = document.createElement('div');
+    layer.className = 'layer-mini';
+    layer.style.setProperty('--z', i);
+    layer.style.setProperty('--delay', (i*0.08)+'s');
+    layer.dataset.key = key;
+    layer.setAttribute('data-label', LABELS[key] || key);
+
+    const bar = document.createElement('div'); bar.className = 'bar-mini';
+    layer.appendChild(bar);
+
+    const hit = document.createElement('div');
+    hit.className = 'hit'; hit.setAttribute('role','button');
+    hit.setAttribute('tabindex','0');
+    hit.setAttribute('aria-label', 'เลือกชั้น '+(LABELS[key]||key));
+    hit.addEventListener('click', ()=> selectFloorMini(key));
+    hit.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); selectFloorMini(key); }});
+    layer.appendChild(hit);
+
+    stack.appendChild(layer);
+  });
+
+  // ----- โหมด BPS = ไฮไลต์ทุกชั้น -----
+  function selectAllMini(){
+    // เปิด effect ทุกชั้น
+    stack.classList.add('all-mode');
+    [...stack.querySelectorAll('.layer-mini')].forEach(l=>l.classList.add('active'));
+    // ไปโมเดลรวม
+    if(typeof MODEL_START!=='undefined' && typeof initModel==='function'){
+      try{ if(typeof historyStack!=='undefined') historyStack.length = 0; }catch(e){}
+      if(typeof suppressHistoryPush!=='undefined') suppressHistoryPush = true;
+      hideAll?.();
+      initModel(MODEL_START);
+      if(typeof suppressHistoryPush!=='undefined') suppressHistoryPush = false;
+    }
+    // อัปเดต label ปีกซ้าย/ขวา (ถ้าอยาก)
+    const label = document.getElementById('BuildorFloor'); if(label) label.textContent = 'BUILDING';
+  }
+
+  // ----- เลือกชั้นเดียว -----
+  function selectFloorMini(key){
+    stack.classList.remove('all-mode');
+    const layers = [...stack.querySelectorAll('.layer-mini')];
+    layers.forEach(l=>l.classList.remove('active'));
+    const target = layers.find(l=>l.dataset.key===key);
+    if(target) target.classList.add('active');
+
+    // ไปโมเดลชั้นนั้น
+    const uid = (typeof ANNO_TO_MODEL!=='undefined') ? ANNO_TO_MODEL[key] : null;
+    if(uid && typeof initModel==='function'){
+      hideAll?.();
+      initModel(uid);
+    }
+
+    // อัปเดต label (เลือกชั้น)
+    const label = document.getElementById('BuildorFloor'); if(label) label.textContent = 'FLOOR';
+
+    // แจ้ง event เผื่อส่วนอื่นต้องฟัง
+    document.dispatchEvent(new CustomEvent('floorchange', { detail:{ key, label: LABELS[key] || key, all:false } }));
+  }
+
+  // ----- ซิงก์จากภายนอก → ไฮไลต์ใน stack นี้ด้วย -----
+  (function hookInitModel(){
+    if(typeof window.initModel!=='function') return;
+    const _init = window.initModel;
+    window.initModel = function(uid){
+      const r = _init(uid);
+      try{
+        // uid → key (ถ้าไม่พบ แปลว่าเป็น Home)
+        const hit = Object.entries(ANNO_TO_MODEL||{}).find(([k,v])=>v===uid);
+        if(!hit){ // Home
+          stack.classList.add('all-mode');
+          [...stack.querySelectorAll('.layer-mini')].forEach(l=>l.classList.add('active'));
+        }else{
+          const key = hit[0];
+          stack.classList.remove('all-mode');
+          const layers = [...stack.querySelectorAll('.layer-mini')];
+          layers.forEach(l=>l.classList.toggle('active', l.dataset.key===key));
+        }
+      }catch(e){}
+      return r;
+    };
+  })();
+
+  // เริ่มต้นให้เป็นโหมด BPS (เหมือนที่คุณตั้งค่า)
+  selectAllMini();
+
+  // ถ้าอยากให้คลิก “ฮาโลรวม” เพื่อกลับ BPS ง่าย ๆ
+  iso.addEventListener('dblclick', selectAllMini);
+
+  // เผื่อเรียกจากที่อื่นได้
+  window.ElevMini = { selectAllMini, selectFloorMini };
+})();
+</script>
+
 
 
 </body>
 </html>
+
