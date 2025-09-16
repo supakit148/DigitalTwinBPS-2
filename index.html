@@ -20,7 +20,11 @@
       --gap: 12px;
       --card-w: clamp(180px, 20vw, 280px);
       --ratio: 16/9;
-      --safe-bottom: calc(4vh + 36px); /* เว้นปุ่ม control Sketchfab *
+      --safe-bottom: calc(4vh + 36px); /* เว้นปุ่ม control Sketchfab */
+      
+      --top-h: 64px;     /* ความสูง .top */
+      --left-w: 320px;   /* ความกว้าง .left */
+      --right-w: 300px;  /* ความกว้างที่กินจริงของ .right */
     }
 
     html, body {
@@ -307,21 +311,25 @@
     /* Fade-in/out glass modal */
     .glass-modal {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(255, 255, 255, 0.05);
+      top: var(--top-h);               /* เริ่มใต้ .top */
+      left: var(--left-w);             /* เริ่มหลัง .left */
+      right: var(--right-w);           /* ก่อน .right */
+      bottom: var(--safe-bottom);      /* เหนือ frame ล่าง */
+    
+      width: auto;
+      height: auto;
+      transform: none; /* ยกเลิก translate เดิม */
+    
+      background: rgba(0,0,0,0.65);
       backdrop-filter: blur(20px);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
+      border-radius: 16px;
+      box-shadow: 0 0 25px #00ffffaa;
+      z-index: 20000 !important;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.6s ease;
+      transition: opacity 0.5s ease;
+      overflow: hidden;
     }
-
     .glass-modal.active {
       opacity: 1;
       pointer-events: auto;
@@ -3549,41 +3557,7 @@ checkAlarmAndFocus();
 })();
 </script>
 
-<script>
-(function(){
-  function fitModal(){
-    const modal = document.querySelector('.glass-modal');
-    if(!modal) return;
 
-    const root = document.documentElement;
-
-    const topBar = document.querySelector('.top');
-    const leftCol = document.querySelector('.left');
-    const rightCol = document.querySelector('.right');
-
-    const topEdge   = topBar  ? topBar.getBoundingClientRect().bottom : 0;
-    const leftEdge  = leftCol ? leftCol.getBoundingClientRect().right : 0;
-    const rightEdge = rightCol ? (window.innerWidth - rightCol.getBoundingClientRect().left) : 0;
-
-    const safeBottomVar = getComputedStyle(root).getPropertyValue('--safe-bottom').trim();
-    const safeBottom = safeBottomVar ? parseFloat(safeBottomVar) : 0;
-
-    Object.assign(modal.style, {
-      position: 'fixed',
-      top:  `${topEdge}px`,
-      left: `${leftEdge}px`,
-      right:`${rightEdge}px`,
-      bottom: `${safeBottom}px`,
-      width: 'auto',
-      height:'auto',
-      transform: 'none'
-    });
-  }
-
-  window.addEventListener('load', fitModal);
-  window.addEventListener('resize', fitModal);
-})();
-</script>
 
 
 
