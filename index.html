@@ -3549,8 +3549,43 @@ checkAlarmAndFocus();
 })();
 </script>
 
+<script>
+(function(){
+  function fitModal(){
+    const modal = document.querySelector('.glass-modal');
+    if(!modal) return;
+
+    const root = document.documentElement;
+
+    const topBar = document.querySelector('.top');
+    const leftCol = document.querySelector('.left');
+    const rightCol = document.querySelector('.right');
+
+    const topEdge   = topBar  ? topBar.getBoundingClientRect().bottom : 0;
+    const leftEdge  = leftCol ? leftCol.getBoundingClientRect().right : 0;
+    const rightEdge = rightCol ? (window.innerWidth - rightCol.getBoundingClientRect().left) : 0;
+
+    const safeBottomVar = getComputedStyle(root).getPropertyValue('--safe-bottom').trim();
+    const safeBottom = safeBottomVar ? parseFloat(safeBottomVar) : 0;
+
+    Object.assign(modal.style, {
+      position: 'fixed',
+      top:  `${topEdge}px`,
+      left: `${leftEdge}px`,
+      right:`${rightEdge}px`,
+      bottom: `${safeBottom}px`,
+      width: 'auto',
+      height:'auto',
+      transform: 'none'
+    });
+  }
+
+  window.addEventListener('load', fitModal);
+  window.addEventListener('resize', fitModal);
+})();
+</script>
+
 
 
 </body>
 </html>
-
