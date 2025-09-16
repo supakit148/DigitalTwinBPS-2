@@ -2059,7 +2059,10 @@ body.modal-open {
     'CCTV-WH',
     'CCTV-UDS',
     'CCTV-HQ',
-    'SolarCell'
+    'SolarCell',
+    'BUILDING_OVERVIEW',
+    '3D_Digital',
+    '4D_Digital'
   ];
 
   const buttonMap = {
@@ -2067,7 +2070,10 @@ body.modal-open {
     'CCTV-WH': 'CCTV-WH',
     'CCTV-UDS': 'CCTV-UDS',
     'CCTV-HQ': 'CCTV-HQ',
-    'SolarCell': 'Solar Cell'
+    'SolarCell': 'Solar Cell',
+    'BUILDING_OVERVIEW': 'Building Overview',
+    '3D_Digital': '3D Digital Twin',
+    '4D_Digital': '4D Digital Twin'
   };
 
   function closeAllModals() {
@@ -2112,7 +2118,7 @@ body.modal-open {
       delay = 6000;
     }
 
-    if (id === 'FiberOptic') {
+    if (id === '4D_Digital') {
       delay = 6000; // แสดง Solar Cell นาน 10 วิ
       setTimeout(() => {
         document.getElementById(id).classList.remove("active");
