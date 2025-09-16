@@ -1169,6 +1169,18 @@ body.modal-open {
   background: radial-gradient(110% 130% at 50% 100%, rgba(0,234,255,.18), transparent 70%);
 }
 
+/* FIX: บังคับให้ชนขอบ layout */
+.glass-modal {
+  top: var(--top-h) !important;
+  left: var(--left-w) !important;
+  right: var(--right-w) !important;
+  bottom: var(--safe-bottom) !important;
+  width: auto !important;
+  height: auto !important;
+  transform: none !important;
+}
+
+
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 </head>
@@ -3556,10 +3568,6 @@ checkAlarmAndFocus();
   window.ElevMini = { selectAllMini, selectFloorMini };
 })();
 </script>
-
-
-
-
 
 </body>
 </html>
