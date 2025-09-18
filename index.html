@@ -1104,10 +1104,10 @@ body.modal-open {
 #waterWidget{
   --bg1:#060b19; --bg2:#0b1230;
   --neon:#00eaff; --neon2:#64f3ff; --glow:#bff7ff;
-  position: relative; width:100%; height:120px;
+  position: relative; width:100%; height:80px;
   border-radius:12px; overflow:hidden;
   background:
-    radial-gradient(500px 200px at 78% 18%, rgba(0,234,255,.18), transparent 60%),
+    radial-gradient(400px 150px at 78% 18%, rgba(0,234,255,.18), transparent 60%),
     linear-gradient(180deg, var(--bg1) 0%, var(--bg2) 100%);
   box-shadow: inset 0 0 12px rgba(0,234,255,.15);
 }
@@ -1126,7 +1126,7 @@ body.modal-open {
 @keyframes nw-drift3{ from{transform:translateX(0)} to{transform:translateX(-50%)} }
 
 /* เส้นไฮไลต์สันคลื่น + เรืองแสงก้นบ่อ */
-#waterWidget .crest{ position:absolute; left:0; right:0; bottom: calc(60% - 2px);
+#waterWidget .crest{ position:absolute; left:0; right:0; bottom: calc(70% - 2px);
   background: linear-gradient(90deg, transparent, rgba(191,247,255,.8), transparent);
   filter: drop-shadow(0 0 12px rgba(191,247,255,.45)); opacity:.45; }
 #waterWidget .glow{ position:absolute; left:0; right:0; bottom:0; height:60px; z-index:3;
@@ -1165,7 +1165,7 @@ body.modal-open {
 /* เงาสันคลื่น/แสงก้นบ่อลดลงเล็กน้อยเพื่อให้ดูโปร่ง */
 #waterWidget .crest{ opacity:.35; }
 #waterWidget .glow{
-  height:40px;
+  height:20px;
   background: radial-gradient(110% 130% at 50% 100%, rgba(0,234,255,.18), transparent 70%);
 }
 
