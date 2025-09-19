@@ -497,17 +497,17 @@
 
     @keyframes scroll-up-down-left {
       0%   { transform: translateY(0); }
-      25%  { transform: translateY(-1400px); }
+      25%  { transform: translateY(-2200px); }
       50%  { transform: translateY(0); }
-      75%  { transform: translateY(-1400px); }
+      75%  { transform: translateY(-2200px); }
       100% { transform: translateY(0); }
     }
 
     @keyframes scroll-up-down-right {
       0%   { transform: translateY(0); }
-      25%  { transform: translateY(-2350px); }
+      25%  { transform: translateY(-3000px); }
       50%  { transform: translateY(0); }
-      75%  { transform: translateY(-2350px); }
+      75%  { transform: translateY(-3000px); }
       100% { transform: translateY(0); }
     }
     
@@ -1218,7 +1218,21 @@ body.modal-open {
 #waterWidget .d2 { animation: nw-drift2 13s linear infinite; }
 #waterWidget .d3 { animation: nw-drift3 20s linear infinite; }
 
-
+    /* ✅ กล่องฝังหน้า IconElect ให้แสดงครบ */
+    .icon-embed {
+      width: 100%;
+      height: 250px;           /* ปรับได้ตามต้องการ */
+      border-radius: 12px;
+      overflow: hidden;
+      margin: 8px 0 14px 0;   /* เว้นก่อนกริดข้อมูล */
+      box-shadow: 0 0 10px rgba(0,255,255,0.25), inset 0 0 6px rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .icon-embed iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
 
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
@@ -1383,6 +1397,12 @@ body.modal-open {
         
         <button onclick="openLogistics('BUILDING_OVERVIEW')">Building Overview</button>
         <button onclick="openLogistics('OFFICE_MAP')">Office Map</button><br></br>
+
+      </div>
+      
+      <div class="scrolling-wrapper">
+      <div class="scrolling-content-left">
+          
       <div class="card">
         <h3> 
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1523,10 +1543,7 @@ body.modal-open {
 </div>
 <!-- /Neon Blue Water -->
 
-      </div>
-      
-      <div class="scrolling-wrapper">
-      <div class="scrolling-content-left">
+          
       <div class="card">
         <h3>
           <svg width="20" height="20" fill="#0ff" viewBox="0 0 24 24">
@@ -1562,6 +1579,17 @@ body.modal-open {
           </svg>
            Electrical System
         </h3>
+        
+      <!-- ✅ ฝังหน้าเดโมจากลิงก์ให้แสดงครบ -->
+      <div class="icon-embed">
+        <iframe
+          src="https://supakit148.github.io/IconElect/"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          allow="fullscreen; clipboard-read; clipboard-write">
+        </iframe>
+      </div>
+        
           <div class="electrical-grid">
             <div class="metric">
               <strong style="color: #0ff;">Voltage</strong>
@@ -1592,6 +1620,8 @@ body.modal-open {
     </div>
 
     <div class="right">
+    <div class="scrolling-wrapper">
+      <div class="scrolling-content">
         <div class="card">
           <h3>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1667,8 +1697,7 @@ body.modal-open {
           
         </div>
 
-    <div class="scrolling-wrapper">
-      <div class="scrolling-content">
+
       <div class="card">
         <h3>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1676,6 +1705,18 @@ body.modal-open {
           </svg>
           Fresh Air
         </h3>
+        
+      <!-- ✅ ฝังหน้าเดโมจากลิงก์ให้แสดงครบ -->
+      <div class="icon-embed">
+        <iframe
+          src="https://supakit148.github.io/FreshAir/"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          allow="fullscreen; clipboard-read; clipboard-write">
+        </iframe>
+      </div>
+        
+        
           <div class="electrical-grid">
             <div class="metric">
               <strong style="color: #0ff;">Temp</strong>
@@ -3610,3 +3651,4 @@ checkAlarmAndFocus();
 
 </body>
 </html>
+
