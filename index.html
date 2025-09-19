@@ -2529,6 +2529,12 @@ body.modal-open {
                 showAll();
               }
               // --------------------------------------------------------------------
+              // 🔸 เพิ่มตรงนี้: ถ้าชื่อ annotation ลงท้ายด้วย "0" ซ่อน CCTV9 ไม่ให้แสดง
+              if (endsWithZero(CameraName)) {
+                setVisible('CCTV9', false);
+              } else {
+                setVisible('CCTV9', true);
+              }
 
               // ถ้ามี mapping ชื่อ annotation → โมเดล ให้สลับไปโมเดลนั้น
               const targetUID = ANNO_TO_MODEL[CameraName];
@@ -3639,9 +3645,15 @@ checkAlarmAndFocus();
 })();
 </script>
 
+<script>
+  function endsWithZero(name){
+    return typeof name === 'string' && name.trim().endsWith('0');
+  }
+</script>
+
+
 </body>
 </html>
-
 
 
 
