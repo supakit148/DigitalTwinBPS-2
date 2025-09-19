@@ -2530,7 +2530,7 @@ body.modal-open {
               }
               // --------------------------------------------------------------------
               // 🔸 เพิ่มตรงนี้: ถ้าชื่อ annotation ลงท้ายด้วย "0" ซ่อน CCTV9 ไม่ให้แสดง
-              if (endsWithZero(CameraName)) {
+              if (endsWithZero(CameraName) || CameraName === "BPS_HQ") {
                 setVisible('CCTV9', false);
               } else {
                 setVisible('CCTV9', true);
@@ -3654,6 +3654,7 @@ checkAlarmAndFocus();
 
 </body>
 </html>
+
 
 
 
