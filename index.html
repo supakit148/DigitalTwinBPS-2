@@ -1233,6 +1233,17 @@ body.modal-open {
       height: 100%;
       border: 0;
     }
+    
+    /* สไตล์รวมสำหรับมีเดียที่ฝังในกรอบโมดัล */
+    .embed-media {
+      width: 100%;
+      height: 100%;
+      display: block;          /* ตัดช่องว่างใต้รูป */
+      border: none;
+      border-radius: 16px;
+      background: #000;        /* ถ้าภาพไม่เต็มจะเห็นพื้นดำ */
+      object-fit: contain;     /* เห็นภาพทั้งใบในกรอบ; ถ้าอยากเต็มตัดขอบใช้ cover */
+    }
 
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
@@ -1900,11 +1911,14 @@ body.modal-open {
     <button class="close-btn" onclick="closeLogistics('FreshAir')">❌</button>
   </div>
 
-  <div id="SolarCell" class="glass-modal">
-    <iframe src="https://lh3.googleusercontent.com/d/1VP3-U0l0QxFb8b-R3puq7EBJQcCKAITs"
-            style="width:100%; height:100%; border:none; border-radius: 16px;"></iframe>
-    <button class="close-btn" onclick="closeLogistics('SolarCell')">❌</button>
-  </div>
+    <div id="SolarCell" class="glass-modal">
+      <img
+        src="https://lh3.googleusercontent.com/d/1VP3-U0l0QxFb8b-R3puq7EBJQcCKAITs"
+        alt="SolarCell"
+        class="embed-media"
+      />
+      <button class="close-btn" onclick="closeLogistics('SolarCell')">❌</button>
+    </div>
 
   <div id="FiberOptic" class="glass-modal">
       <a href="https://bpstech.online/d/fe15b960-5bda-4051-b87b-2bbec6d29461/project-fiber-check-material-rev1?orgId=1&from=1753376400000&to=1753416393714" target="_blank" style="font-size:18px; text-decoration:none;">
@@ -1915,14 +1929,26 @@ body.modal-open {
     <button class="close-btn" onclick="closeLogistics('FiberOptic')">❌</button>
   </div>
   
-  <div id="Hik-Connect" class="glass-modal">
-      <a href="https://www.hik-connect.com/views/login/index.html#/portal" target="_blank" style="font-size:18px; text-decoration:none;">
-    🌐 เปิด Hik-Connect Portal      
-    <iframe src="https://lh3.googleusercontent.com/d/1HaZxGvMWF-H2eMs1PP5Bf3Sh-9vtP2X3"
-            style="width:100%; height:100%; border:none; border-radius: 16px;"></iframe>
-            </a>
-    <button class="close-btn" onclick="closeLogistics('Hik-Connect')">❌</button>
-  </div>
+    <div id="Hik-Connect" class="glass-modal">
+      <!-- ปุ่มเปิดพอร์ทัลในแท็บใหม่ (ไม่ห่อมีเดีย) -->
+      <p style="position:absolute; z-index:20; left:12px; top:12px; margin:0;">
+        <a href="https://www.hik-connect.com/views/login/index.html#/portal"
+           target="_blank" rel="noopener noreferrer"
+           style="font-size:16px; text-decoration:none; color:#00eaff;">
+          🌐 เปิด Hik-Connect Portal
+        </a>
+      </p>
+    
+      <!-- ภาพจาก Googleusercontent โชว์เต็มกรอบ -->
+      <img
+        src="https://lh3.googleusercontent.com/d/1HaZxGvMWF-H2eMs1PP5Bf3Sh-9vtP2X3"
+        alt="Hik-Connect Snapshot"
+        class="embed-media"
+      />
+    
+      <button class="close-btn" onclick="closeLogistics('Hik-Connect')">❌</button>
+    </div>
+
 
   <!-- https://bpstech.online/d/fe15b960-5bda-4051-b87b-2bbec6d29461/project-fiber-check-material-rev1?orgId=1&from=1753376400000&to=1753416393714
   <!-- 🔊 Audio Visualizer -->
@@ -3668,5 +3694,3 @@ checkAlarmAndFocus();
 
 </body>
 </html>
-
-
