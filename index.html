@@ -1293,6 +1293,10 @@ body.modal-open {
   box-shadow: 0 0 12px rgba(0,246,255,.22);
 }
 
+/* ยกชั้น dropdown และเมนูย่อยให้สูงกว่า ios-clock */
+.menu-buttons .dropdown { position: relative; z-index: 10010; }
+.menu-buttons .dd-menu   { position: absolute; z-index: 10020; }
+
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 </head>
@@ -1365,7 +1369,6 @@ body.modal-open {
       <div class="top-center">
         <div class="menu-buttons">
           <button onclick="runDemo()">▶ Auto View</button>
-          <button onclick="openLogistics('logisticsCenterModal')">Logistics</button>
           
             <div class="dropdown" id="cctvDropdown">
               <button class="dd-toggle" onclick="toggleCctvDD(event)">
@@ -1380,21 +1383,84 @@ body.modal-open {
               </div>
             </div>
 
-          <button onclick="openLogistics('ElectricalSystem')">Electrical System</button>
-          <button onclick="openLogistics('WaterSystem')">Water System</button>
-          <button onclick="openLogistics('FreshAir')">Fresh Air</button>
-          <button onclick="openLogistics('SolarCell')">Solar Cell</button>
-          <button onclick="openLogistics('FiberOptic')">Fiber Optic</button>
-          <button onclick="openLogistics('wastewater')">wastewater</button>
-          <button onclick="openLogistics('DataCenter')">DataCenter</button>
-          <button onclick="openLogistics('CapsuleHouse')">Capsule House</button>
-          <button onclick="openLogistics('SmartIOTMeter')">Smart IOT Meter Monitoring</button>
-          <button onclick="openLogistics('Waston')">Watson</button>
-          <button onclick="openLogistics('CoolingTower')">Cooling Tower</button>
-          <button onclick="openLogistics('CleanAirSystem')">Clean Air System</button>
-          <button onclick="openLogistics('FiberOptic')">Fiber Optic</button>
-          <button onclick="openLogistics('Wellness')">Wellness</button>
-          <button onclick="openLogistics('LogisticsCRM')">Logistics CRM</button>
+<!-- Logistics -->
+<div class="dropdown" id="logisticsDD">
+  <button class="dd-toggle" onclick="toggleDD(event, 'logisticsDD')">
+    Logistics <span class="caret">▾</span>
+  </button>
+  <div class="dd-menu" role="menu" aria-label="Logistics submenu">
+    <button role="menuitem" onclick="openDDItem('logisticsCenterModal','logisticsDD')">Logistics Center</button>
+    <button role="menuitem" onclick="openDDItem('LogisticsCRM','logisticsDD')">Logistics CRM</button>
+  </div>
+</div>
+
+<!-- Water -->
+<div class="dropdown" id="waterDD">
+  <button class="dd-toggle" onclick="toggleDD(event, 'waterDD')">
+    Water <span class="caret">▾</span>
+  </button>
+  <div class="dd-menu" role="menu" aria-label="Water submenu">
+    <button role="menuitem" onclick="openDDItem('WaterSystem','waterDD')">Water System</button>
+    <button role="menuitem" onclick="openDDItem('wastewater','waterDD')">Wastewater</button>
+  </div>
+</div>
+
+<!-- Electrical -->
+<div class="dropdown" id="electricalDD">
+  <button class="dd-toggle" onclick="toggleDD(event, 'electricalDD')">
+    Electrical <span class="caret">▾</span>
+  </button>
+  <div class="dd-menu" role="menu" aria-label="Electrical submenu">
+    <button role="menuitem" onclick="openDDItem('ElectricalSystem','electricalDD')">Electrical System</button>
+    <button role="menuitem" onclick="openDDItem('SmartIOTMeter','electricalDD')">Smart IOT Meter Monitoring</button>
+    <button role="menuitem" onclick="openDDItem('Waston','electricalDD')">Waston</button>
+  </div>
+</div>
+
+<!-- FreshAir -->
+<div class="dropdown" id="freshAirDD">
+  <button class="dd-toggle" onclick="toggleDD(event, 'freshAirDD')">
+    FreshAir <span class="caret">▾</span>
+  </button>
+  <div class="dd-menu" role="menu" aria-label="FreshAir submenu">
+    <button role="menuitem" onclick="openDDItem('FreshAir','freshAirDD')">Fresh Air</button>
+    <button role="menuitem" onclick="openDDItem('CoolingTower','freshAirDD')">Cooling Tower</button>
+    <button role="menuitem" onclick="openDDItem('CleanAirSystem','freshAirDD')">Clean Air System</button>
+  </div>
+</div>
+
+<!-- SolarCell -->
+<div class="dropdown" id="solarDD">
+  <button class="dd-toggle" onclick="toggleDD(event, 'solarDD')">
+    SolarCell <span class="caret">▾</span>
+  </button>
+  <div class="dd-menu" role="menu" aria-label="SolarCell submenu">
+    <button role="menuitem" onclick="openDDItem('SolarCell','solarDD')">Solar Cell</button>
+  </div>
+</div>
+
+<!-- FiberOptic -->
+<div class="dropdown" id="fiberDD">
+  <button class="dd-toggle" onclick="toggleDD(event, 'fiberDD')">
+    FiberOptic <span class="caret">▾</span>
+  </button>
+  <div class="dd-menu" role="menu" aria-label="FiberOptic submenu">
+    <button role="menuitem" onclick="openDDItem('FiberOptic','fiberDD')">Fiber Optic</button>
+  </div>
+</div>
+
+<!-- Other -->
+<div class="dropdown" id="otherDD">
+  <button class="dd-toggle" onclick="toggleDD(event, 'otherDD')">
+    Other <span class="caret">▾</span>
+  </button>
+  <div class="dd-menu" role="menu" aria-label="Other submenu">
+    <button role="menuitem" onclick="openDDItem('Wellness','otherDD')">Wellness</button>
+    <button role="menuitem" onclick="openDDItem('DataCenter','otherDD')">DataCenter</button>
+    <button role="menuitem" onclick="openDDItem('CapsuleHouse','otherDD')">Capsule House</button>
+  </div>
+</div>
+          
       
       </div>
 
@@ -3972,6 +4038,31 @@ checkAlarmAndFocus();
     openLogistics(targetId);
     highlightCctvButton(true);
   }
+</script>
+
+<script>
+  function toggleDD(e, id){
+    e.stopPropagation();
+    document.querySelectorAll('.dropdown').forEach(d => {
+      if (d.id !== id) d.classList.remove('open');
+    });
+    document.getElementById(id)?.classList.toggle('open');
+  }
+
+  function openDDItem(targetId, ddId){
+    closeAllModals?.();
+    removeButtonHighlights?.();
+    openLogistics(targetId);
+    // ไฮไลต์ปุ่ม และปิดเมนูย่อยหลังเลือก
+    const toggle = document.querySelector(`#${ddId} .dd-toggle`);
+    toggle?.classList.add('highlight');
+    document.getElementById(ddId)?.classList.remove('open');
+  }
+
+  // คลิกนอกเพื่อปิดทุกดรอปดาวน์
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('open'));
+  });
 </script>
 
 
