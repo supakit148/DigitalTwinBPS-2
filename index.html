@@ -1383,14 +1383,15 @@ body.modal-open {
               </div>
             </div>
 
-<!-- Logistics -->
-<div class="dropdown" id="logisticsDD">
-  <button class="dd-toggle" onclick="toggleDD(event, 'logisticsDD')">
-    Logistics <span class="caret">▾</span>
+<!-- Electrical -->
+<div class="dropdown" id="electricalDD">
+  <button class="dd-toggle" onclick="toggleDD(event, 'electricalDD')">
+    Electrical <span class="caret">▾</span>
   </button>
-  <div class="dd-menu" role="menu" aria-label="Logistics submenu">
-    <button role="menuitem" onclick="openDDItem('logisticsCenterModal','logisticsDD')">Logistics Center</button>
-    <button role="menuitem" onclick="openDDItem('LogisticsCRM','logisticsDD')">Logistics CRM</button>
+  <div class="dd-menu" role="menu" aria-label="Electrical submenu">
+    <button role="menuitem" onclick="openDDItem('ElectricalSystem','electricalDD')">Electrical System</button>
+    <button role="menuitem" onclick="openDDItem('SmartIOTMeter','electricalDD')">Smart IOT Meter Monitoring</button>
+    <button role="menuitem" onclick="openDDItem('Waston','electricalDD')">Waston</button>
   </div>
 </div>
 
@@ -1405,18 +1406,6 @@ body.modal-open {
   </div>
 </div>
 
-<!-- Electrical -->
-<div class="dropdown" id="electricalDD">
-  <button class="dd-toggle" onclick="toggleDD(event, 'electricalDD')">
-    Electrical <span class="caret">▾</span>
-  </button>
-  <div class="dd-menu" role="menu" aria-label="Electrical submenu">
-    <button role="menuitem" onclick="openDDItem('ElectricalSystem','electricalDD')">Electrical System</button>
-    <button role="menuitem" onclick="openDDItem('SmartIOTMeter','electricalDD')">Smart IOT Meter Monitoring</button>
-    <button role="menuitem" onclick="openDDItem('Waston','electricalDD')">Waston</button>
-  </div>
-</div>
-
 <!-- FreshAir -->
 <div class="dropdown" id="freshAirDD">
   <button class="dd-toggle" onclick="toggleDD(event, 'freshAirDD')">
@@ -1426,6 +1415,17 @@ body.modal-open {
     <button role="menuitem" onclick="openDDItem('FreshAir','freshAirDD')">Fresh Air</button>
     <button role="menuitem" onclick="openDDItem('CoolingTower','freshAirDD')">Cooling Tower</button>
     <button role="menuitem" onclick="openDDItem('CleanAirSystem','freshAirDD')">Clean Air System</button>
+  </div>
+</div>
+
+<!-- Logistics -->
+<div class="dropdown" id="logisticsDD">
+  <button class="dd-toggle" onclick="toggleDD(event, 'logisticsDD')">
+    Logistics <span class="caret">▾</span>
+  </button>
+  <div class="dd-menu" role="menu" aria-label="Logistics submenu">
+    <button role="menuitem" onclick="openDDItem('logisticsCenterModal','logisticsDD')">Logistics Center</button>
+    <button role="menuitem" onclick="openDDItem('LogisticsCRM','logisticsDD')">Logistics CRM</button>
   </div>
 </div>
 
@@ -2547,31 +2547,6 @@ body.modal-open {
   </script>
 
   <script>
-  function closeAllModals() {
-    const modals = [
-      'logisticsCenterModal',
-      'CCTVSecurity',
-      'CCTV-WH',
-      'CCTV-UDS',
-      'CCTV-HQ',
-      'ElectricalSystem',
-      'WaterSystem',
-      'FreshAir',
-      'SolarCell',
-      'FiberOptic',
-      'Hik-Connect' // ✅ เพิ่มบรรทัดนี้
-    ];
-    modals.forEach(id => document.getElementById(id).classList.remove("active"));
-  }
-
-  function removeButtonHighlights() {
-    document.querySelectorAll(".menu-buttons button").forEach(btn => {
-      btn.classList.remove("highlight");
-    });
-  }
-  </script>
-
-  <script>
   let autoViewRunning = false;
   let autoViewTimer = null;
   let autoViewButton = null;
@@ -2611,71 +2586,7 @@ body.modal-open {
     });
   }
 
-  function openNextModal() {
-    if (!autoViewRunning) return;
 
-    closeAllModals();
-    removeButtonHighlights();
-
-    if (index >= modals.length) index = 0;
-
-    const id = modals[index];
-    const label = buttonMap[id];
-    const button = [...document.querySelectorAll(".menu-buttons button")]
-                    .find(b => b.innerText.includes(label));
-    if (button) {
-      button.classList.add("highlight");
-    }
-
-    document.getElementById(id).classList.add("active");
-
-    let delay = 6000; // default 5 วิ
-
-    if (id === 'CCTV-WH') {
-      delay = 6000;
-    }
-
-    if (id === 'CCTV-UDS') {
-      delay = 6000;
-    }
-
-    if (id === 'CCTV-HQ') {
-      delay = 6000;
-    }
-
-    if (id === '4D_Digital') {
-      delay = 6000; // แสดง Solar Cell นาน 10 วิ
-      setTimeout(() => {
-        document.getElementById(id).classList.remove("active");
-        removeButtonHighlights();
-      }, 6000); // ปิด Solar หลัง 10 วิ
-      delay += 900000; // รอเพิ่มอีก 10 วิ รวม 20 วิ
-    }
-
-    index++;
-    autoViewTimer = setTimeout(openNextModal, delay);
-  }
-
-  function runDemo() {
-    if (!autoViewButton) {
-      autoViewButton = document.querySelector(".menu-buttons button");
-    }
-
-    if (!autoViewRunning) {
-      autoViewRunning = true;
-      autoViewButton.classList.add("highlight");
-      autoViewButton.innerText = "⏹ Stop";
-      index = 0;
-      openNextModal();
-    } else {
-      autoViewRunning = false;
-      clearTimeout(autoViewTimer);
-      closeAllModals();
-      removeButtonHighlights();
-      autoViewButton.classList.remove("highlight");
-      autoViewButton.innerText = "▶ Auto View";
-    }
-  }
   </script>
 
   <script>
@@ -4139,6 +4050,518 @@ checkAlarmAndFocus();
     document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('open'));
   });
 </script>
+
+<script>
+/* ==== Utility: ปิดทุกโมดัลแบบรวม (ไม่ต้องลิสต์มือ) ==== */
+function closeAllModals() {
+  document.querySelectorAll('.glass-modal, .glass-modal-cctv')
+    .forEach(el => el.classList.remove('active'));
+}
+
+/* ==== ล้างไฮไลต์ปุ่มทุกหัวข้อ (dd-toggle) และปุ่ม Auto View ==== */
+function clearHighlights() {
+  document.querySelectorAll('.menu-buttons .dd-toggle, .menu-buttons > button')
+    .forEach(btn => btn.classList.remove('highlight'));
+}
+
+/* ==== เปิดโมดัลตาม id และไฮไลต์หัวข้อที่เกี่ยวข้อง ==== */
+function openAndHighlight(modalId) {
+  closeAllModals();
+  document.getElementById(modalId)?.classList.add('active');
+
+  // ล้างไฮไลต์เดิม
+  document.querySelectorAll('.menu-buttons .dd-toggle').forEach(b => b.classList.remove('highlight'));
+
+  // หา group ที่ต้องไฮไลต์จาก modalId
+  const groupId = modalGroupMap[modalId];
+  if (!groupId) return; // บางหน้าอยู่นอกเมนู (เช่น BUILDING_OVERVIEW) ก็ไม่ต้องไฮไลต์หัวข้อ
+
+  // ไฮไลต์ปุ่มหัวข้อ (dd-toggle) ของกรุ๊ปนั้น ๆ
+  const group = document.getElementById(groupId);
+  const toggleBtn = group?.querySelector('.dd-toggle');
+  toggleBtn?.classList.add('highlight');
+
+  // (ออปชัน) เปิดเมนูย่อยเพื่อโชว์ว่ามาจากกรุ๊ปไหน
+  // group?.classList.add('open');
+}
+
+/* ==== Map: หน้าไหนอยู่หัวข้อใด ==== */
+const modalGroupMap = {
+  // CCTV
+  'CCTVSecurity': 'cctvDropdown',
+  'CCTV-HQ': 'cctvDropdown',
+  'CCTV-WH': 'cctvDropdown',
+  'CCTV-UDS': 'cctvDropdown',
+  'Hik-Connect': 'cctvDropdown',
+
+  // Logistics
+  'logisticsCenterModal': 'logisticsDD',
+  'LogisticsCRM': 'logisticsDD',
+
+  // Water
+  'WaterSystem': 'waterDD',
+  'wastewater': 'waterDD',
+
+  // Electrical
+  'ElectricalSystem': 'electricalDD',
+  'SmartIOTMeter': 'electricalDD',
+  'Waston': 'electricalDD',
+
+  // FreshAir
+  'FreshAir': 'freshAirDD',
+  'CoolingTower': 'freshAirDD',
+  'CleanAirSystem': 'freshAirDD',
+
+  // Solar
+  'SolarCell': 'solarDD',
+  'fusionsolar': 'solarDD',
+
+  // Fiber
+  'FiberOptic2': 'fiberDD',
+  'FiberOptic': 'fiberDD',
+
+  // Other
+  'Wellness': 'otherDD',
+  'DataCenter': 'otherDD',
+  'CapsuleHouse': 'otherDD'
+};
+
+/* ==== AutoView: ไล่เปิดทุกหน้าในเมนูด้านบน + หน้าเดี่ยวอื่น ๆ ==== */
+const autoSequence = [
+  // === CCTV
+  'CCTVSecurity', 'CCTV-HQ', 'CCTV-WH', 'CCTV-UDS', 'Hik-Connect',
+  // === Logistics
+  'logisticsCenterModal', 'LogisticsCRM',
+  // === Water
+  'WaterSystem', 'wastewater',
+  // === Electrical
+  'ElectricalSystem', 'SmartIOTMeter', 'Waston',
+  // === FreshAir
+  'FreshAir', 'CoolingTower', 'CleanAirSystem',
+  // === Solar
+  'SolarCell', 'fusionsolar',
+  // === Fiber
+  'FiberOptic2', 'FiberOptic',
+  // === Other
+  'Wellness', 'DataCenter', 'CapsuleHouse',
+  // === Standalone (นอกเมนู)
+  'BUILDING_OVERVIEW', 'OFFICE_MAP', '3D_Digital', '4D_Digital'
+];
+
+let autoViewRunning = false;
+let autoViewTimer = null;
+let autoViewBtn = null;
+let autoIndex = 0;
+const AUTO_DELAY_MS = 6000; // หน้าละ ~6 วิ (ปรับได้)
+
+/* ==== เดินหน้าไปยังหน้า/โมดัลถัดไป ==== */
+function stepAutoView() {
+  if (!autoViewRunning) return;
+
+  if (autoIndex >= autoSequence.length) autoIndex = 0;
+  const id = autoSequence[autoIndex++];
+
+  // เปิดหน้า + ไฮไลต์หัวข้อ
+  openAndHighlight(id);
+
+  // จองคิวถัดไป
+  autoViewTimer = setTimeout(stepAutoView, AUTO_DELAY_MS);
+}
+
+/* ==== ปุ่ม Auto View (สลับเริ่ม/หยุด) ==== */
+function runDemo() {
+  if (!autoViewBtn) {
+    // ปุ่ม Auto View คือปุ่มแรกใน .menu-buttons ที่ไม่ใช่ dd-toggle
+    autoViewBtn = document.querySelector('.menu-buttons > button:not(.dd-toggle)');
+  }
+  if (!autoViewRunning) {
+    autoViewRunning = true;
+    autoIndex = 0;
+    autoViewBtn?.classList.add('highlight');
+    autoViewBtn.innerText = '⏹ Stop';
+    stepAutoView();
+  } else {
+    autoViewRunning = false;
+    clearTimeout(autoViewTimer);
+    autoViewTimer = null;
+    closeAllModals();
+    clearHighlights();
+    autoViewBtn?.classList.remove('highlight');
+    autoViewBtn.innerText = '▶ Auto View';
+  }
+}
+
+/* ==== ให้ปุ่มเมนูย่อยเปิดพร้อมไฮไลต์หัวข้อถูกตัวเสมอ ==== */
+function openDDItem(modalId, groupId) {
+  // ปิดออโต้ถ้ากำลังรันอยู่ เพื่อไม่ให้แย่งคิวกัน
+  if (autoViewRunning) { runDemo(); } // toggle → หยุด
+  closeAllModals();
+  clearHighlights();
+  document.getElementById(modalId)?.classList.add('active');
+  const group = document.getElementById(groupId);
+  group?.querySelector('.dd-toggle')?.classList.add('highlight');
+}
+
+/* ==== (ออปชัน) ปิด dropdown อื่นเมื่อเปิดอันใหม่ ==== */
+function toggleDD(e, id) {
+  e.stopPropagation();
+  document.querySelectorAll('.menu-buttons .dropdown').forEach(dd => {
+    if (dd.id === id) dd.classList.toggle('open');
+    else dd.classList.remove('open');
+  });
+}
+document.addEventListener('click', () => {
+  document.querySelectorAll('.menu-buttons .dropdown').forEach(dd => dd.classList.remove('open'));
+});
+
+/* ==== ของเดิม: CCTV dropdown เฉพาะ (ถ้าเรียกใช้) ==== */
+function toggleCctvDD(e){ toggleDD(e, 'cctvDropdown'); }
+</script>
+
+<script>
+(() => {
+  /* ---------- FIX 1: กัน error จาก id iframe ไม่ตรง ---------- */
+  (function setBackgroundByTimeSafe() {
+    const el = document.getElementById('background-frame') || document.getElementById('skfb-frame');
+    if (!el) return;                       // ไม่มี iframe ก็ข้าม
+    // *** ถ้าใช้ Sketchfab API อยู่แล้ว สามารถคอมเมนต์ท่อนตั้ง src นี้ทิ้งได้ ***
+    // const hour = new Date().getHours();
+    // const src = hour < 8
+    //   ? "https://sketchfab.com/models/65a75a890cfe4b63b1e3c7e41e524e36/embed?autostart=1&annotations_visible=0&annotation_cycle=5"
+    //   : hour < 16
+    //   ? "https://sketchfab.com/models/fd7092ffbe88421dbbf9e19dd36894e9/embed?autostart=1&annotations_visible=0&annotation_cycle=5"
+    //   : "https://sketchfab.com/models/9fe00d65cf0c4dec92cf1c6fb7be9e02/embed?autostart=1&annotations_visible=0&annotation_cycle=5";
+    // if (!el.src) el.src = src;
+  })();
+
+  /* ---------- ตัวช่วยทั่วไป ---------- */
+  const AV_DELAY = 6000;
+  let avTimer = null, avRunning = false, avIndex = 0;
+
+  // ลิสต์ modal ที่มีอยู่จริงในหน้า (เอาตาม id ที่คุณสร้างไว้)
+  const AV_SEQUENCE = [
+    'CCTVSecurity',
+    'CCTV-HQ',
+    'CCTV-WH',
+    'CCTV-UDS',
+    
+    'Hik-Connect',
+    'logisticsCenterModal',
+    'SolarCell',
+    'BUILDING_OVERVIEW',
+    '3D_Digital',
+    '4D_Digital',
+    'Hik-Connect'
+  ];
+
+  function closeAllModalsSafe() {
+    document.querySelectorAll('.glass-modal, .glass-modal-cctv').forEach(m => m.classList.remove('active'));
+  }
+  function clearAllHighlights() {
+    document.querySelectorAll('.menu-buttons .dd-toggle, .menu-buttons > button').forEach(b => b.classList.remove('highlight'));
+  }
+  function openAndHighlight(modalId, groupId) {
+    closeAllModalsSafe();
+    document.getElementById(modalId)?.classList.add('active');
+    clearAllHighlights();
+    if (groupId) {
+      document.getElementById(groupId)?.querySelector('.dd-toggle')?.classList.add('highlight');
+    }
+  }
+
+  /* ---------- FIX 2: เติมฟังก์ชันเมนูย่อยที่หาย ---------- */
+  window.toggleDD = function(e, id) {
+    e.stopPropagation();
+    document.querySelectorAll('.menu-buttons .dropdown').forEach(dd => {
+      dd.classList.toggle('open', dd.id === id ? !dd.classList.contains('open') : false);
+    });
+  };
+  window.toggleCctvDD = function(e){ window.toggleDD(e, 'cctvDropdown'); };
+
+  window.openDDItem = function(modalId, groupId) {
+    if (avRunning) window.runDemo();       // ถ้า Auto กำลังเล่น ให้หยุดก่อน
+    openAndHighlight(modalId, groupId);
+  };
+  window.openCctvItem = function(modalId) { window.openDDItem(modalId, 'cctvDropdown'); };
+
+  // คลิคนอกเมนู → ปิด dropdown
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.menu-buttons .dropdown').forEach(dd => dd.classList.remove('open'));
+  });
+
+  /* ---------- FIX 3: เติม runDemo (Auto View) ---------- */
+  window.runDemo = function() {
+    const btn = document.querySelector('.menu-buttons > button:not(.dd-toggle)');
+    if (!avRunning) {
+      // start
+      avRunning = true;
+      avIndex = 0;
+      btn && (btn.innerText = '⏹ Stop', btn.classList.add('highlight'));
+      step();
+    } else {
+      // stop
+      avRunning = false;
+      clearTimeout(avTimer);
+      avTimer = null;
+      btn && (btn.innerText = '▶ Auto View', btn.classList.remove('highlight'));
+      closeAllModalsSafe();
+      clearAllHighlights();
+    }
+  };
+
+  function step() {
+    if (!avRunning) return;
+    if (avIndex >= AV_SEQUENCE.length) avIndex = 0;
+    const id = AV_SEQUENCE[avIndex++];
+    // map id → group ปุ่มบนหัว (เพื่อไฮไลต์หมวดที่ถูกเปิด)
+    const groupMap = {
+      'logisticsCenterModal':'logisticsDD',
+      'CCTV-WH':'cctvDropdown',
+      'CCTV-UDS':'cctvDropdown',
+      'CCTV-HQ':'cctvDropdown',
+      'SolarCell':'solarDD',
+      'BUILDING_OVERVIEW':null,
+      '3D_Digital':null,
+      '4D_Digital':null,
+      'Hik-Connect':'cctvDropdown'
+    };
+    openAndHighlight(id, groupMap[id] || null);
+    avTimer = setTimeout(step, AV_DELAY);
+  }
+})();
+</script>
+
+<script>
+/* ====== ตัวช่วยพื้นฐาน ====== */
+function closeAllModalsSafe(){
+  document.querySelectorAll('.glass-modal, .glass-modal-cctv')
+    .forEach(m => m.classList.remove('active'));
+}
+function clearAllHighlights(){
+  document.querySelectorAll('.menu-buttons .dd-toggle, .menu-buttons > button')
+    .forEach(b => b.classList.remove('highlight'));
+}
+function openAndHighlight(modalId, groupId){
+  closeAllModalsSafe();
+  const m = document.getElementById(modalId);
+  if (m) m.classList.add('active');
+  clearAllHighlights();
+  if (groupId){
+    const dd = document.getElementById(groupId);
+    dd?.querySelector('.dd-toggle')?.classList.add('highlight');
+  }
+}
+
+/* ====== toggle dropdown ====== */
+function toggleDD(e, id){
+  e.stopPropagation();
+  document.querySelectorAll('.menu-buttons .dropdown').forEach(dd => {
+    dd.classList.toggle('open', dd.id === id ? !dd.classList.contains('open') : false);
+  });
+}
+function toggleCctvDD(e){ toggleDD(e, 'cctvDropdown'); }
+
+// ปิดเมนูเมื่อคลิคนอก
+document.addEventListener('click', () => {
+  document.querySelectorAll('.menu-buttons .dropdown').forEach(dd => dd.classList.remove('open'));
+});
+
+/* ====== ฟังก์ชันเปิดโมดัลจากเมนู ====== */
+// ใช้ในปุ่มย่อยของหมวดทั่วไป
+function openDDItem(modalId, groupId){
+  // ถ้ามีโหมด Auto View กำลังทำงานอยู่และคุณมี runDemo() ให้หยุดก่อน
+  if (typeof runDemo === 'function' && window.avRunning) runDemo();
+  openAndHighlight(modalId, groupId);
+}
+
+// ใช้ในปุ่มย่อยของหมวด CCTV
+function openCctvItem(modalId){
+  openDDItem(modalId, 'cctvDropdown');
+}
+
+/* ====== ลำดับ Auto View และการแม็ปไฮไลต์ ======
+   ดึงมาจากเมนูที่ให้มาครบทุกตัว (เรียงตามกลุ่ม/ลำดับปุ่มในโค้ด) */
+const AV_SEQUENCE = [
+  // CCTV
+  'CCTVSecurity', 'CCTV-HQ', 'CCTV-WH', 'CCTV-UDS', 'Hik-Connect',
+  // Electrical
+  'ElectricalSystem', 'SmartIOTMeter', 'Waston',
+  // Water
+  'WaterSystem', 'wastewater',
+  // FreshAir
+  'FreshAir', 'CoolingTower', 'CleanAirSystem',
+  // Logistics
+  'logisticsCenterModal', 'LogisticsCRM',
+  // SolarCell
+  'SolarCell', 'fusionsolar',
+  // Fiber
+  'FiberOptic2', 'FiberOptic',
+  // Other
+  'Wellness', 'DataCenter', 'CapsuleHouse'
+];
+
+// modalId → id ของ dropdown เพื่อไฮไลต์ปุ่มกลุ่มบนหัว
+const groupMap = {
+  // CCTV
+  'CCTVSecurity'   : 'cctvDropdown',
+  'CCTV-HQ'        : 'cctvDropdown',
+  'CCTV-WH'        : 'cctvDropdown',
+  'CCTV-UDS'       : 'cctvDropdown',
+  'Hik-Connect'    : 'cctvDropdown',
+
+  // Electrical
+  'ElectricalSystem': 'electricalDD',
+  'SmartIOTMeter'   : 'electricalDD',
+  'Waston'          : 'electricalDD',
+
+  // Water
+  'WaterSystem'     : 'waterDD',
+  'wastewater'      : 'waterDD',
+
+  // FreshAir
+  'FreshAir'        : 'freshAirDD',
+  'CoolingTower'    : 'freshAirDD',
+  'CleanAirSystem'  : 'freshAirDD',
+
+  // Logistics
+  'logisticsCenterModal': 'logisticsDD',
+  'LogisticsCRM'        : 'logisticsDD',
+
+  // SolarCell
+  'SolarCell'       : 'solarDD',
+  'fusionsolar'     : 'solarDD',
+
+  // Fiber
+  'FiberOptic2'     : 'fiberDD',
+  'FiberOptic'      : 'fiberDD',
+
+  // Other
+  'Wellness'        : 'otherDD',
+  'DataCenter'      : 'otherDD',
+  'CapsuleHouse'    : 'otherDD'
+};
+
+/* ====== (ออปชัน) ตัวเดิน Auto View ใช้ AV_SEQUENCE + groupMap ====== */
+let avTimer = null, avIndex = 0; window.avRunning = false;
+function stepAuto(){
+  if (!window.avRunning) return;
+  if (avIndex >= AV_SEQUENCE.length) avIndex = 0;
+  const id = AV_SEQUENCE[avIndex++];
+  openAndHighlight(id, groupMap[id]);
+  avTimer = setTimeout(stepAuto, 6000); // 6 วิ/จอ
+}
+// ปุ่ม ▶ Auto View ในเมนู ใช้ฟังก์ชันนี้
+function runDemo(){
+  const btn = document.querySelector('.menu-buttons > button:not(.dd-toggle)');
+  if (!window.avRunning){
+    window.avRunning = true; avIndex = 0;
+    btn && (btn.innerText = '⏹ Stop', btn.classList.add('highlight'));
+    stepAuto();
+  } else {
+    window.avRunning = false;
+    clearTimeout(avTimer); avTimer = null;
+    btn && (btn.innerText = '▶ Auto View', btn.classList.remove('highlight'));
+    closeAllModalsSafe(); clearAllHighlights();
+  }
+}
+</script>
+
+<script>
+// === ตั้งค่าเวลา ===
+const DISPLAY_MS  = 6000;               // เวลาโชว์แต่ละจอ
+const COOLDOWN_MS = 15 * 60 * 1000;     // พัก 15 นาที
+
+// === ตัวแปรสถานะ ===
+let avTimer = null;
+let avIndex = 0;
+let onCooldown = false;
+window.avRunning = window.avRunning ?? false;
+
+// ถ้ามีตัวแปรเก่าจากสคริปต์เดิม เคลียร์ทิ้ง
+if (window.autoViewTimer) { try { clearTimeout(window.autoViewTimer); } catch(e){} }
+window.autoViewTimer = null;
+
+// ช่วยให้เทียบ id แบบไม่พลาดตัวพิมพ์เล็กใหญ่/เว้นวรรค
+const norm = s => String(s || '').trim().toLowerCase();
+
+// เปิดโมดัลตามกลุ่ม (ใช้ของคุณเดิม)
+function openAndHighlight(id, group){
+  // ปิดทั้งหมดก่อน
+  closeAllModalsSafe?.();
+
+  // เปิดตาม group
+  if (group === 'CCTV')      { openCctvItem?.(id); }
+  else if (group)            { openDDItem?.(id, groupMapReverse[group] || ''); }
+  else                       { openLogistics?.(id); }
+
+  // ไฮไลต์ปุ่ม (ถ้ามี)
+  highlightMenuButton?.(id, group);
+}
+
+// ฟังก์ชันหลักของลูป
+function stepAuto(){
+  // ถ้ากำลังพัก ก็ไม่ทำอะไร
+  if (!window.avRunning || onCooldown) return;
+
+  // safety: กัน index เกิน
+  if (avIndex >= AV_SEQUENCE.length) avIndex = 0;
+
+  const id    = AV_SEQUENCE[avIndex++];
+  const group = groupMap[id];
+
+  // เปิดหน้าปัจจุบัน
+  openAndHighlight(id, group);
+
+  // --- เงื่อนไขพักเมื่อถึง CapsuleHouse ---
+  if (norm(id) === 'capsulehouse') {
+    // ให้เห็นหน้านี้สักครู่ จากนั้นปิด
+    clearTimeout(avTimer);
+    avTimer = setTimeout(() => {
+      closeAllModalsSafe?.();
+      // เข้าสู่โหมดพัก
+      onCooldown = true;
+
+      // เริ่มใหม่ตั้งแต่หัวแถวหลังพัก 15 นาที
+      avIndex = 0;
+      clearTimeout(avTimer);
+      avTimer = setTimeout(() => {
+        onCooldown = false;
+        stepAuto();      // resume loop
+      }, COOLDOWN_MS);
+    }, 1000); // จะให้ 0 ก็ได้ถ้าอยากปิดทันที
+
+    return; // สำคัญ: ไม่คิวจอถัดไป
+  }
+
+  // กรณีทั่วไป: คิวถัดไปตาม DISPLAY_MS
+  clearTimeout(avTimer);
+  avTimer = setTimeout(stepAuto, DISPLAY_MS);
+}
+
+// ปุ่ม ▶ Auto View
+function runDemo(){
+  const btn = document.querySelector('.menu-buttons > button:not(.dd-toggle)');
+
+  if (!window.avRunning){
+    window.avRunning = true;
+    onCooldown = false;            // เผื่อค้าง
+    avIndex = 0;
+    if (btn){ btn.innerText = '⏹ Stop'; btn.classList.add('highlight'); }
+    clearTimeout(avTimer);
+    stepAuto();
+  } else {
+    window.avRunning = false;
+    onCooldown = false;
+    clearTimeout(avTimer);
+    avTimer = null;
+    if (btn){ btn.innerText = '▶ Auto View'; btn.classList.remove('highlight'); }
+    closeAllModalsSafe?.();
+    clearAllHighlights?.();
+  }
+}
+</script>
+
+
 
 
 </body>
