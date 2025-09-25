@@ -1435,7 +1435,8 @@ body.modal-open {
     SolarCell <span class="caret">▾</span>
   </button>
   <div class="dd-menu" role="menu" aria-label="SolarCell submenu">
-    <button role="menuitem" onclick="openDDItem('SolarCell','solarDD')">Solar Cell</button>
+    <button role="menuitem" onclick="openDDItem('SolarCell','solarDD')">BPS-SolarCell</button>
+    <button role="menuitem" onclick="openDDItem('fusionsolar','solarDD')">fusionsolar</button>
   </div>
 </div>
 
@@ -1445,7 +1446,8 @@ body.modal-open {
     FiberOptic <span class="caret">▾</span>
   </button>
   <div class="dd-menu" role="menu" aria-label="FiberOptic submenu">
-    <button role="menuitem" onclick="openDDItem('FiberOptic','fiberDD')">Fiber Optic</button>
+    <button role="menuitem" onclick="openDDItem('FiberOptic2','fiberDD')">Fiber Optic</button>
+    <button role="menuitem" onclick="openDDItem('FiberOptic','fiberDD')">Fiber Optic-Check Material</button>
   </div>
 </div>
 
@@ -2212,7 +2214,7 @@ body.modal-open {
 </div>
 
 <!-- FiberOptic (ถ้ามีอยู่แล้ว ให้แค่เอา href/src ไปอัปเดตของเดิม แทนการสร้างซ้ำ) -->
-<div id="FiberOptic" class="glass-modal">
+<div id="FiberOptic2" class="glass-modal">
   <p style="position:absolute; z-index:20; left:12px; top:12px; margin:0;">
     <a href="https://bpstech.online/d/aef7eec2-fc42-4ce7-a66e-211aaeedc9d0/fiber-rev3?orgId=1&refresh=5s&kiosk"
        target="_blank" rel="noopener noreferrer"
@@ -2225,7 +2227,7 @@ body.modal-open {
     alt="Fiber Optic Snapshot"
     class="embed-media"
   />
-  <button class="close-btn" onclick="closeLogistics('FiberOptic')">❌</button>
+  <button class="close-btn" onclick="closeLogistics('FiberOptic2')">❌</button>
 </div>
 
 <!-- Wellness -->
@@ -2263,6 +2265,27 @@ body.modal-open {
   />
 
   <button class="close-btn" onclick="closeLogistics('LogisticsCRM')">❌</button>
+</div>
+
+
+<div id="fusionsolar" class="glass-modal">
+  <!-- ปุ่มเปิดพอร์ทัลในแท็บใหม่ -->
+  <p style="position:absolute; z-index:20; left:12px; top:12px; margin:0;">
+    <a href="https://sg5.fusionsolar.huawei.com/uniportal/pvmswebsite/assets/build/cloud.html?app-id=smartpvms&instance-id=smartpvms&zone-id=region-7-dc86060b-2d0d-4045-9ada-82aa1a5a9b0c#/home/list"
+       target="_blank" rel="noopener noreferrer"
+       style="font-size:16px; text-decoration:none; color:#00eaff;">
+      🌐 เปิด FusionSolar
+    </a>
+  </p>
+
+  <!-- ภาพตัวอย่างจาก Google Drive (ใช้เฉพาะ file ID) -->
+  <img
+    src="https://lh3.googleusercontent.com/d/1b3WJmr-NLU-O31XCqWyNfxMSOnhKst_U"
+    alt="FusionSolar Snapshot"
+    class="embed-media"
+  />
+
+  <button class="close-btn" onclick="closeLogistics('fusionsolar')">❌</button>
 </div>
 
 
