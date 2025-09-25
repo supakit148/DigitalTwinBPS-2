@@ -1244,6 +1244,54 @@ body.modal-open {
       background: #000;        /* ถ้าภาพไม่เต็มจะเห็นพื้นดำ */
       object-fit: contain;     /* เห็นภาพทั้งใบในกรอบ; ถ้าอยากเต็มตัดขอบใช้ cover */
     }
+    
+/* === CCTV Dropdown (top menu) === */
+.menu-buttons .dropdown{ position:relative; z-index:4; }
+.menu-buttons .dd-toggle{
+  background: transparent;
+  border: 1px solid var(--glow);
+  color: var(--text);
+  padding: 10px 18px;
+  border-radius: var(--radius);
+  font-weight: bold; font-size: 14px; cursor: pointer;
+  text-shadow: var(--neon); transition: all .25s ease;
+}
+.menu-buttons .dd-toggle:hover,
+.menu-buttons .dd-toggle.highlight{
+  background: var(--glow); color:#000; box-shadow: 0 0 18px var(--glow);
+}
+.menu-buttons .dd-toggle .caret{
+  display:inline-block; margin-left:8px; transition: transform .2s ease;
+}
+.menu-buttons .dropdown.open .dd-toggle .caret{ transform: rotate(180deg); }
+
+.menu-buttons .dd-menu{
+  position:absolute; top: calc(100% + 8px); left:0; min-width: 220px;
+  background: rgba(0,0,0,.65);
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--glow);
+  border-radius: 12px;
+  box-shadow: 0 0 20px #00ffff66;
+  padding: 6px;
+  display:none;
+}
+.menu-buttons .dropdown.open .dd-menu{ display:block; }
+
+.menu-buttons .dd-menu button{
+  width:100%;
+  background: transparent;
+  border: 1px solid rgba(0,255,255,.25);
+  color: var(--text);
+  padding: 10px 12px; margin: 6px 0;
+  border-radius: 10px; text-align:left;
+  font-weight:600; font-size: 13px; cursor:pointer;
+  transition: all .2s ease;
+}
+.menu-buttons .dd-menu button:hover{
+  background: rgba(0,255,255,.18); color:#001316;
+  border-color: rgba(0,255,255,.85);
+  box-shadow: 0 0 12px rgba(0,246,255,.22);
+}
 
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
@@ -1318,16 +1366,25 @@ body.modal-open {
         <div class="menu-buttons">
           <button onclick="runDemo()">▶ Auto View</button>
           <button onclick="openLogistics('logisticsCenterModal')">Logistics</button>
-          <button onclick="openLogistics('CCTVSecurity')">CCTV Security</button>
-          <button onclick="openLogistics('CCTV-WH')">CCTV-WH</button>
-          <button onclick="openLogistics('CCTV-UDS')">CCTV-UDS</button>
-          <button onclick="openLogistics('CCTV-HQ')">CCTV-HQ</button>
+          
+            <div class="dropdown" id="cctvDropdown">
+              <button class="dd-toggle" onclick="toggleCctvDD(event)">
+                CCTV <span class="caret">▾</span>
+              </button>
+              <div class="dd-menu" role="menu" aria-label="CCTV submenu">
+                <button role="menuitem" onclick="openCctvItem('CCTVSecurity')">MainCCTV</button>
+                <button role="menuitem" onclick="openCctvItem('CCTV-HQ')">HQ</button>
+                <button role="menuitem" onclick="openCctvItem('CCTV-WH')">WH</button>
+                <button role="menuitem" onclick="openCctvItem('CCTV-UDS')">UDS</button>
+                <button role="menuitem" onclick="openCctvItem('Hik-Connect')">Hik-Connect</button>
+              </div>
+            </div>
+
           <button onclick="openLogistics('ElectricalSystem')">Electrical System</button>
           <button onclick="openLogistics('WaterSystem')">Water System</button>
           <button onclick="openLogistics('FreshAir')">Fresh Air</button>
           <button onclick="openLogistics('SolarCell')">Solar Cell</button>
           <button onclick="openLogistics('FiberOptic')">Fiber Optic</button>
-          <button onclick="openLogistics('Hik-Connect')">Hik-Connect</button>
         </div>
 
       <!-- ใต้ .top-center -->
@@ -2166,7 +2223,8 @@ body.modal-open {
       'WaterSystem',
       'FreshAir',
       'SolarCell',
-      'FiberOptic'
+      'FiberOptic',
+      'Hik-Connect' // ✅ เพิ่มบรรทัดนี้
     ];
     modals.forEach(id => document.getElementById(id).classList.remove("active"));
   }
@@ -2192,10 +2250,12 @@ body.modal-open {
     'SolarCell',
     'BUILDING_OVERVIEW',
     '3D_Digital',
-    '4D_Digital'
+    '4D_Digital',
+    'Hik-Connect' // ✅ เพิ่มเพื่อให้ closeAllModals() ปิดได้
   ];
 
   const buttonMap = {
+    'Hik-Connect': 'Hik-Connect',
     'logisticsCenterModal': 'Logistics',
     'CCTV-WH': 'CCTV-WH',
     'CCTV-UDS': 'CCTV-UDS',
@@ -2254,7 +2314,7 @@ body.modal-open {
         document.getElementById(id).classList.remove("active");
         removeButtonHighlights();
       }, 6000); // ปิด Solar หลัง 10 วิ
-      delay += 180000; // รอเพิ่มอีก 10 วิ รวม 20 วิ
+      delay += 900000; // รอเพิ่มอีก 10 วิ รวม 20 วิ
     }
 
     index++;
@@ -3692,7 +3752,34 @@ checkAlarmAndFocus();
   }
 </script>
 
+<script>
+  function toggleCctvDD(e){
+    e.stopPropagation();
+    const dd = document.getElementById('cctvDropdown');
+    dd.classList.toggle('open');
+  }
+  // ปิด dropdown เมื่อคลิกนอก
+  document.addEventListener('click', () => {
+    document.getElementById('cctvDropdown')?.classList.remove('open');
+  });
+
+  function highlightCctvButton(on){
+    const btn = document.querySelector('#cctvDropdown .dd-toggle');
+    if(!btn) return;
+    btn.classList.toggle('highlight', !!on);
+    // ปิดเมนูหลังเลือก
+    document.getElementById('cctvDropdown')?.classList.remove('open');
+  }
+
+  // เรียกเปิดโมดัลจากเมนูย่อย แล้วทำความสะอาดสถานะเดิม
+  function openCctvItem(targetId){
+    closeAllModals?.();
+    removeButtonHighlights?.();
+    openLogistics(targetId);
+    highlightCctvButton(true);
+  }
+</script>
+
 
 </body>
 </html>
-
