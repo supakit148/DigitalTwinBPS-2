@@ -4382,6 +4382,8 @@ function openCctvItem(modalId){
 /* ====== ลำดับ Auto View และการแม็ปไฮไลต์ ======
    ดึงมาจากเมนูที่ให้มาครบทุกตัว (เรียงตามกลุ่ม/ลำดับปุ่มในโค้ด) */
 const AV_SEQUENCE = [
+  // Graph
+  'BUILDING_OVERVIEW', '3D_Digital', '4D_Digital',
   // CCTV
   'CCTVSecurity', 'CCTV-HQ', 'CCTV-WH', 'CCTV-UDS', 'Hik-Connect',
   // Electrical
@@ -4402,6 +4404,11 @@ const AV_SEQUENCE = [
 
 // modalId → id ของ dropdown เพื่อไฮไลต์ปุ่มกลุ่มบนหัว
 const groupMap = {
+  // Graph
+  'BUILDING_OVERVIEW'  : null,
+  '3D_Digital'         : null,
+  '4D_Digital'         : null,
+    
   // CCTV
   'CCTVSecurity'   : 'cctvDropdown',
   'CCTV-HQ'        : 'cctvDropdown',
