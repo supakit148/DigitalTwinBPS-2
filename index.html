@@ -4572,9 +4572,50 @@ function runDemo(){
 </script>
 
 
+<!-- Modal สำหรับแสดงภาพใหญ่ -->
+<div id="imageModal" class="glass-modal">
+  <button class="close-btn" onclick="closeModal()">✖</button>
+  <img id="modalImage" class="embed-media" alt="Full screen view">
+</div>
+
+
+<script>
+  // ฟังก์ชันเปิด Modal
+  function openModal(src) {
+    const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('modalImage');
+    modalImg.src = src;
+    modal.classList.add('active');
+    document.body.classList.add('modal-open'); // กัน scroll
+  }
+
+  // ฟังก์ชันปิด Modal
+  function closeModal() {
+    const modal = document.getElementById('imageModal');
+    modal.classList.remove('active');
+    document.body.classList.remove('modal-open');
+  }
+
+  // ครอบคลุม img modalImg1 - modalImg9
+  for (let i = 1; i <= 9; i++) {
+    const img = document.getElementById(`modalImg${i}`);
+    if (img) {
+      img.style.cursor = "pointer"; // แสดงว่าคลิกได้
+      img.addEventListener('click', function () {
+        if (img.src) openModal(img.src);
+      });
+    }
+  }
+
+  // ปิด modal เมื่อกด ESC
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeModal();
+  });
+</script>
+
+
 
 
 </body>
 </html>
-
 
