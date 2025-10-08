@@ -19,7 +19,7 @@
       --gap: 12px;
       --card-w: clamp(180px, 20vw, 280px);
       --ratio: 16/9;
-      --safe-bottom: calc(4vh + 36px); /* เว้นปุ่ม control Sketchfab */
+      --safe-bottom: calc(8vh + 36px); /* เว้นปุ่ม control Sketchfab */
       
       --top-h: 64px;     /* ความสูง .top */
       --left-w: 320px;   /* ความกว้าง .left */
@@ -1301,7 +1301,7 @@ body.modal-open {
   position: fixed;
   left: 0;
   right: 0;
-  bottom: 0;                 /* ชิดล่างจอ */
+  bottom: -20px; /* ขยับลงต่ำกว่าเดิม 20px */                 /* ชิดล่างจอ */
   width: 100vw;
   background: rgba(0,0,0,0.65);
   backdrop-filter: blur(12px);
@@ -4669,5 +4669,6 @@ function runDemo(){
 
 </body>
 </html>
+
 
 
