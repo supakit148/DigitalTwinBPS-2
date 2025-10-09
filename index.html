@@ -1381,6 +1381,8 @@ body.modal-open {
   height: auto;                 /* <— สำคัญ: อย่าบังคับสูง */
   display: block;
   object-fit: contain;          /* เห็นรูปทั้งใบแบบคม ๆ */
+  object-position: center;    /* จัดกลางเฟรม */
+  background: #000;           /* พื้นหลังดำเวลาเหลือขอบ */
   image-rendering: -webkit-optimize-contrast; /* เพิ่มความคม (บางเบราว์เซอร์) */
   image-rendering: crisp-edges; /* fallback */
   filter: none !important;      /* กันโดนสไตล์อื่นมาเบลอ */
@@ -4724,6 +4726,7 @@ function runDemo(){
 
 </body>
 </html>
+
 
 
 
