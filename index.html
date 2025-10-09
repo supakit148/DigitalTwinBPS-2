@@ -1332,39 +1332,40 @@ body.modal-open {
   z-index:2;
 }
 
-/* ===== BottomCam: โปร่งใสแบบกราเดียนท์ (บนใส → ล่างทึบ) ===== */
+/* ===== BottomCam: เต็มกว้าง + เว้นซ้าย/ขวา + gradient ไม่มี blur ===== */
 #bottomCam{
   position: fixed;
-  left: var(--left-w);         /* เว้นบล็อกซ้าย */
-  right: var(--right-w);       /* เว้นบล็อกขวา */
+  left: var(--left-w);          /* เว้น block ซ้าย */
+  right: var(--right-w);        /* เว้น block ขวา */
   bottom: 0;
-  height: clamp(180px, 24vh, 420px);
-  display: none;               /* เปิดด้วย .active */
+  /* ให้สูงอิงตามรูป ไม่บังคับตายตัว เพื่อลดการ up-scale */
+  height: auto;
+  max-height: 40vh;             /* กันไม่ให้กินจอมากเกินไป */
+  display: none;                /* เปิดด้วย .active */
   z-index: 20050;
   border-top-left-radius: 14px;
   border-top-right-radius: 14px;
-  overflow: hidden;            /* กันภาพ/เลเยอร์ล้นขอบโค้ง */
-  background: transparent;     /* พื้นโปร่งใส */
+  overflow: hidden;
+  background: transparent;
   pointer-events: auto;
   box-shadow: 0 -8px 28px rgba(0,0,0,.35);
 }
 
-/* โชว์เมื่อเพิ่มคลาส .active */
+/* โชว์เมื่อเปิด */
 #bottomCam.active{ display:block; }
 
-/* เลเยอร์กราเดียนท์ทับด้านบนรูป: บนใส → ล่างทึบ */
+/* ไล่เฉด: บนใส → ล่างทึบ (ไม่มี backdrop-filter) */
 #bottomCam::after{
   content:"";
   position:absolute; inset:0;
-  pointer-events:none;         /* ให้คลิกทะลุถึงรูปได้ */
+  pointer-events:none;
   background: linear-gradient(
     to bottom,
     rgba(0,0,0,0) 0%,
-    rgba(0,0,0,.25) 40%,
-    rgba(0,0,0,.55) 70%,
-    rgba(0,0,0,.85) 100%
+    rgba(0,0,0,.20) 40%,
+    rgba(0,0,0,.45) 70%,
+    rgba(0,0,0,.75) 100%
   );
-  backdrop-filter: blur(6px);  /* เบลอฉากหลังเล็กน้อย */
 }
 
 /* เส้นขอบนีออนบาง ๆ ที่ขอบบน */
@@ -1374,19 +1375,15 @@ body.modal-open {
   background: linear-gradient(90deg, transparent, #00ffffaa, transparent);
 }
 
-/* รูปเต็มความกว้าง จัดกึ่งกลางแนวดิ่ง/แนวนอนในเฟรม */
+/* รูป: เต็มความกว้าง, ความสูงอัตโนมัติ, ไม่บังคับยืด */
 #bottomCam img{
   width: 100%;
-  height: 100%;
-  object-fit: contain;  /* เห็นรูปทั้งใบ; ถ้าอยากเต็มเฟรมใช้ cover */
+  height: auto;                 /* <— สำคัญ: อย่าบังคับสูง */
   display: block;
-}
-
-/* ปุ่มปิดมุมขวาบนของจอล่าง */
-#bottomCam .close-btn{
-  position:absolute; right:10px; top:10px; z-index:2;
-  background:#0ff; color:#000; border:none; border-radius:8px;
-  padding:6px 10px; font-weight:700; cursor:pointer;
+  object-fit: contain;          /* เห็นรูปทั้งใบแบบคม ๆ */
+  image-rendering: -webkit-optimize-contrast; /* เพิ่มความคม (บางเบราว์เซอร์) */
+  image-rendering: crisp-edges; /* fallback */
+  filter: none !important;      /* กันโดนสไตล์อื่นมาเบลอ */
 }
 
   </style>
@@ -4727,6 +4724,7 @@ function runDemo(){
 
 </body>
 </html>
+
 
 
 
