@@ -1363,6 +1363,17 @@ body.modal-open {
   #bottomCam{ left: 0; right: 0; max-width: 100vw; }
 }
 
+#bottomCam{ display:none; }
+#bottomCam.active{ display:block; }
+
+/* ตำแหน่งปุ่มปิดสำหรับจอล่าง */
+#bottomCam .close-btn{
+  position:absolute; right:10px; top:10px;
+  z-index:2; background:#0ff; color:#000;
+  border:none; border-radius:8px; padding:6px 10px;
+  font-weight:700; cursor:pointer;
+}
+
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 </head>
@@ -2725,7 +2736,7 @@ body.modal-open {
               const modalImg10 = document.getElementById("modalImg10");
               if (modalImg10 && img10){
                 modalImg10.src = img10;
-                document.getElementById('bottomCam').style.display = 'block'; // ← โชว์จอล่าง
+                document.getElementById('bottomCam').classList.add('active'); // ← เปิดด้วยคลาส
               }
 
               // กล้อง 2 (ถัดแถว)
@@ -4693,12 +4704,14 @@ function runDemo(){
 
 
 <!-- ===== Bottom full-width camera (centered between left/right blocks) ===== -->
-<div id="bottomCam" style="display:none;">
+<div id="bottomCam">
+  <button class="close-btn" onclick="document.getElementById('bottomCam').classList.remove('active')">❌</button>
   <img id="modalImg10" alt="Bottom Camera">
 </div>
 
 
 </body>
 </html>
+
 
 
