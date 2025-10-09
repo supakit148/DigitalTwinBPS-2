@@ -1378,14 +1378,10 @@ body.modal-open {
 /* รูป: เต็มความกว้าง, ความสูงอัตโนมัติ, ไม่บังคับยืด */
 #bottomCam img{
   width: 100%;
-  height: auto;                 /* <— สำคัญ: อย่าบังคับสูง */
+  height: 100%;
   display: block;
-  object-fit: contain;          /* เห็นรูปทั้งใบแบบคม ๆ */
-  object-position: bottom;    /* จัดกลางเฟรม */
-  background: #000;           /* พื้นหลังดำเวลาเหลือขอบ */
-  image-rendering: -webkit-optimize-contrast; /* เพิ่มความคม (บางเบราว์เซอร์) */
-  image-rendering: crisp-edges; /* fallback */
-  filter: none !important;      /* กันโดนสไตล์อื่นมาเบลอ */
+  object-fit: cover;     /* ถ้าอยากเห็นภาพทั้งใบ ใช้ 'contain' ได้ */
+  object-position: center;
 }
 
   </style>
@@ -4726,6 +4722,7 @@ function runDemo(){
 
 </body>
 </html>
+
 
 
 
