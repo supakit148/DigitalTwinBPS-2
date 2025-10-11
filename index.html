@@ -497,17 +497,17 @@
 
     @keyframes scroll-up-down-left {
       0%   { transform: translateY(0); }
-      25%  { transform: translateY(-1700px); }
+      25%  { transform: translateY(-2200px); }
       50%  { transform: translateY(0); }
-      75%  { transform: translateY(-1700px); }
+      75%  { transform: translateY(-2200px); }
       100% { transform: translateY(0); }
     }
 
     @keyframes scroll-up-down-right {
       0%   { transform: translateY(0); }
-      25%  { transform: translateY(-2400px); }
+      25%  { transform: translateY(-2900px); }
       50%  { transform: translateY(0); }
-      75%  { transform: translateY(-2400px); }
+      75%  { transform: translateY(-2900px); }
       100% { transform: translateY(0); }
     }
     
@@ -717,7 +717,7 @@
 /* ===== Floor Switcher (under clock) ===== */
 .floor-switcher{
   position: absolute;
-  top: 900px;                 /* อยู่ใต้ .ios-clock (ซึ่งอยู่ที่ top:68px) */
+  top: calc(68px + 130px);  /* ✅ อยู่ใต้ .ios-clock (68px) + เว้นอีก 130px */
   left: 50%;
   transform: translateX(-50%);
   z-index: 5;
@@ -4712,7 +4712,6 @@ function runDemo(){
 
 </body>
 </html>
-
 
 
 
