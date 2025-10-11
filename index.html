@@ -497,17 +497,17 @@
 
     @keyframes scroll-up-down-left {
       0%   { transform: translateY(0); }
-      25%  { transform: translateY(-1200px); }
+      25%  { transform: translateY(-2200px); }
       50%  { transform: translateY(0); }
-      75%  { transform: translateY(-1200px); }
+      75%  { transform: translateY(-2200px); }
       100% { transform: translateY(0); }
     }
 
     @keyframes scroll-up-down-right {
       0%   { transform: translateY(0); }
-      25%  { transform: translateY(-1900px); }
+      25%  { transform: translateY(-2900px); }
       50%  { transform: translateY(0); }
-      75%  { transform: translateY(-1900px); }
+      75%  { transform: translateY(-2900px); }
       100% { transform: translateY(0); }
     }
     
@@ -1372,6 +1372,11 @@ body.modal-open {
   z-index:2; background:#0ff; color:#000;
   border:none; border-radius:8px; padding:6px 10px;
   font-weight:700; cursor:pointer;
+}
+
+#CCTV1, #CCTV2, #CCTV3, #CCTV4, #CCTV5, #CCTV6, #CCTV7, #CCTV8, #CCTV9 {
+  width: 600px !important;
+  aspect-ratio: 16 / 9;
 }
 
   </style>
@@ -4712,7 +4717,6 @@ function runDemo(){
 
 </body>
 </html>
-
 
 
 
