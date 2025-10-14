@@ -2752,44 +2752,26 @@ body.modal-open {
                 document.getElementById('bottomCam').classList.add('active'); // ← เปิดด้วยคลาส
               }
 
-          /* ---------- [เพิ่มส่วนนี้] ส่งค่า row[2] ไปเขียน BigScreen!A2 ---------- */
-          (async () => {
-            try {
-              const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx1MSUnUKD6RE3UtmCQNW4hw1JX193ffizJyZfreapb33hnQ-XLyumni3wUFULQ3UQ4/exec";
-          
-              // เตรียมค่าที่จะเขียนลง A2 (ต้องเป็น array 2 มิติ)
-              const payload = {
-                sheetId:   "1pG8ldAgtHsOzlVxjITuBp2XCS77Sdk15fvmR-YU-MDg",
-                sheetName: "BigScreen",
-                range:     "A2",
-                values:    [[ img10 ]]  // ใช้ค่า row[2] ที่เก็บไว้ในตัวแปร img10
-              };
-          
-              // ป้องกันการยิงซ้ำ ๆ หากค่าเท่าเดิม (optional)
-              if (window.__lastA2Value__ === img10) return;
-              window.__lastA2Value__ = img10;
-          
-              const res = await fetch(WEB_APP_URL, {
-                method: "POST",
-                mode: "no-cors",  // ✅ เพิ่มบรรทัดนี้
-                headers: { "Content-Type": "application/json" },
-                // ถ้าติด CORS และคุณตั้ง Web App แบบ Anyone with the link แล้ว
-                // ให้ลองเอา headers ออก & ใช้ mode: 'no-cors' (จะอ่าน response ไม่ได้ แต่จะส่งได้)
-                body: JSON.stringify(payload)
-              });
-          
-              // ถ้าไม่ได้ใช้ no-cors: ตรวจผลลัพธ์ได้
-              if (res.ok) {
-                const j = await res.json().catch(() => ({}));
-                if (!j.ok) console.warn("Write A2 failed:", j.error);
-              } else {
-                console.warn("Fetch not ok when writing A2:", res.status);
-              }
-            } catch (err) {
-              console.error("❌ Error writing A2:", err);
-            }
-          })();
-          /* ---------- [จบส่วนที่เพิ่ม] ---------- */
+          /* ----- ส่งค่าไปเขียน BigScreen!A2 แบบเร็ว + ไม่รอผล ----- */
+              (() => {
+                try {
+                  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzTaE94mVaYJwFNOpF4zcwvVirKvSdB1gFnYWAU0EllxzDCo1kmpMVzQ2OrJcmwy3St/exec";
+              
+                  // กันยิงซ้ำถ้าค่าเดิมเหมือนเดิม
+                  if (window.__lastA2Value__ === img10) return;
+                  window.__lastA2Value__ = img10;
+              
+                  // ยิงแบบ CORS ปกติ (เพราะเราใส่ header ให้ Apps Script แล้ว)
+                  fetch(WEB_APP_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    // ไม่ await เพื่อไม่บล็อก UI
+                    body: JSON.stringify({ value: img10 })
+                  }).catch(() => {});
+                } catch (err) {
+                  console.warn("Write A2 failed:", err);
+                }
+              })();
 
               
 
@@ -4766,6 +4748,7 @@ function runDemo(){
 
 </body>
 </html>
+
 
 
 
