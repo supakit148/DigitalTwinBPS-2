@@ -1379,6 +1379,14 @@ body.modal-open {
   aspect-ratio: 16 / 9;
 }
 
+/* bottomCam ถูกซ่อน ไม่ว่าคลาส .active จะอยู่หรือไม่ */
+#bottomCam {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}    
+    
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 </head>
@@ -4758,6 +4766,7 @@ function runDemo(){
 
 </body>
 </html>
+
 
 
 
