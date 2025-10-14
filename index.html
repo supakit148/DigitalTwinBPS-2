@@ -2763,6 +2763,7 @@ body.modal-open {
           
               const res = await fetch(WEB_APP_URL, {
                 method: "POST",
+                mode: "no-cors",  // ✅ เพิ่มบรรทัดนี้
                 headers: { "Content-Type": "application/json" },
                 // ถ้าติด CORS และคุณตั้ง Web App แบบ Anyone with the link แล้ว
                 // ให้ลองเอา headers ออก & ใช้ mode: 'no-cors' (จะอ่าน response ไม่ได้ แต่จะส่งได้)
@@ -4757,6 +4758,7 @@ function runDemo(){
 
 </body>
 </html>
+
 
 
 
