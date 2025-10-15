@@ -2752,29 +2752,24 @@ body.modal-open {
                 document.getElementById('bottomCam').classList.add('active'); // ← เปิดด้วยคลาส
               }
 
-          /* ----- ส่งค่าไปเขียน BigScreen!A2 แบบเร็ว + ไม่รอผล ----- */
+              /* ----- ส่งค่า img10 ไป Apps Script CacheService ----- */
               (() => {
                 try {
-                  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzTaE94mVaYJwFNOpF4zcwvVirKvSdB1gFnYWAU0EllxzDCo1kmpMVzQ2OrJcmwy3St/exec";
+                  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxrWo4ZfE91t5IsqlTlSP2HuCjOaO4m4FBjEzGJMgjbKC9DYEqkJ0UOZ1N1jlZivyJa/exec"; // 👈 ใส่ลิงก์ Web App ของคุณ
               
-                  // กันยิงซ้ำถ้าค่าเดิมเหมือนเดิม
-                  if (window.__lastA2Value__ === img10) return;
-                  window.__lastA2Value__ = img10;
+                  if (window.__lastImg10Value__ === img10) return; // กันยิงซ้ำค่าเดิม
+                  window.__lastImg10Value__ = img10;
               
-                  // ยิงแบบ CORS ปกติ (เพราะเราใส่ header ให้ Apps Script แล้ว)
                   fetch(WEB_APP_URL, {
                     method: "POST",
                     mode: "no-cors",  // ✅ เพิ่มบรรทัดนี้
                     headers: { "Content-Type": "application/json" },
-                    // ไม่ await เพื่อไม่บล็อก UI
-                    body: JSON.stringify({ value: img10 })
-                  }).catch(() => {});
+                    body: JSON.stringify({ img: img10 })
+                  }).catch(err => console.warn("❌ ส่งค่า img10 ไม่สำเร็จ:", err));
                 } catch (err) {
-                  console.warn("Write A2 failed:", err);
+                  console.warn("Write Cache failed:", err);
                 }
-              })();
-
-              
+              })();   
 
               // กล้อง 2 (ถัดแถว)
               const row2  = rows[i+1]?.c || [];
@@ -4749,6 +4744,7 @@ function runDemo(){
 
 </body>
 </html>
+
 
 
 
